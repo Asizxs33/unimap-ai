@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Построение маршрута — UniMap AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#1a56db",
+                        "secondary-container": "#dae4ee",
+                        "on-surface": "#191c1d",
+                        "tertiary-fixed": "#ffdbcf",
+                        "secondary-fixed": "#dae4ee",
+                        "on-tertiary-fixed-variant": "#802a00",
+                        "on-primary-fixed": "#00174d",
+                        "on-primary-fixed-variant": "#003dab",
+                        "surface-dim": "#d9dadb",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e1e3e4",
+                        "on-secondary-container": "#5c666e",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#c3c5d7",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#003fb1",
+                        "tertiary": "#852b00",
+                        "surface-container": "#edeeef",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "surface": "#f8f9fa",
+                        "outline": "#737686",
+                        "surface-container-highest": "#e1e3e4",
+                        "primary-fixed": "#dbe1ff",
+                        "secondary-fixed-dim": "#bec8d1",
+                        "on-secondary-fixed": "#131d24",
+                        "on-tertiary-fixed": "#380d00",
+                        "on-primary-container": "#d4dcff",
+                        "surface-container-high": "#e7e8e9",
+                        "surface-bright": "#f8f9fa",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-secondary-fixed-variant": "#3e4850",
+                        "primary-fixed-dim": "#b5c4ff",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f3f4f5",
+                        "tertiary-container": "#ad3b00",
+                        "surface-tint": "#1353d8",
+                        "on-secondary": "#ffffff",
+                        "background": "#f8f9fa",
+                        "on-surface-variant": "#434654",
+                        "tertiary-fixed-dim": "#ffb59a",
+                        "on-tertiary-container": "#ffd4c5",
+                        "inverse-surface": "#2e3132",
+                        "secondary": "#566068",
+                        "on-background": "#191c1d",
+                        "inverse-primary": "#b5c4ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "display": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased h-screen flex flex-col overflow-hidden">
+<!-- TopAppBar (Shared Component) -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-[0_12px_32px_rgba(25,28,29,0.04)] transition-all duration-300 ease-in-out font-['Inter'] font-semibold tracking-tight">
+<div class="flex justify-between items-center px-6 h-16 w-full bg-slate-50/50 dark:bg-slate-900/50">
+<button class="material-symbols-outlined text-blue-700 dark:text-blue-400 hover:opacity-80 transition-opacity">arrow_back</button>
+<h1 class="text-lg font-bold text-blue-900 dark:text-blue-50 tracking-[-0.02em]">UniMap AI</h1>
+<button class="material-symbols-outlined text-blue-700 dark:text-blue-400 hover:opacity-80 transition-opacity">search</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="relative flex-1 w-full flex flex-col pt-16">
+<!-- Interactive ????? Layer -->
+<div class="absolute inset-0 z-0">
+<img alt="Карта кампуса" class="w-full h-full object-cover opacity-70 sepia-[.1] hue-rotate-[-10deg] brightness-105" data-alt="Вид сверху на современную карту университетского кампуса в стиле архитектурного чертежа с мягкими синими градиентами и деликатными тенями." data-location="Университетский кампус" src="screen.png"/>
+<!-- Abstract Route Overlay -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none drop-shadow-[0_4px_12px_rgba(0,63,177,0.3)]" preserveaspectratio="xMidYMid slice" viewbox="0 0 1000 1000">
+<path class="opacity-90" d="M 300 700 Q 400 500, 600 550 T 700 300" fill="none" stroke="#003fb1" stroke-dasharray="16 16" stroke-linecap="round" stroke-width="8"></path>
+<circle cx="300" cy="700" fill="#852b00" r="14"></circle> <!-- ????? - Tertiary -->
+<circle cx="700" cy="300" fill="#003fb1" r="14"></circle> <!-- End - Primary -->
+</svg>
+</div>
+<!-- Floating Input Section (Glassmorphism) -->
+<div class="relative z-10 mx-4 mt-6 p-4 bg-surface-container-lowest/85 backdrop-blur-2xl rounded-[1.5rem] shadow-[0_12px_32px_rgba(25,28,29,0.06)]">
+<div class="flex flex-col gap-2">
+<!-- ?????? -->
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-tertiary text-xl">my_location</span>
+<div class="flex-1 bg-surface-container-highest rounded-xl px-4 py-3 relative group overflow-hidden">
+<label class="text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-[+0.04em] block mb-0.5">Откуда</label>
+<input class="w-full bg-transparent text-on-surface font-body text-sm outline-none border-none p-0 focus:ring-0" type="text" value="Текущее местоположение"/>
+<div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-primary transition-all duration-300 group-focus-within:w-full"></div>
+</div>
+</div>
+<!-- Connector Line -->
+<div class="w-[2px] h-4 bg-surface-variant ml-[11px]"></div>
+<!-- ???? -->
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary text-xl">location_on</span>
+<div class="flex-1 bg-surface-container-highest rounded-xl px-4 py-3 relative group overflow-hidden">
+<label class="text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-[+0.04em] block mb-0.5">Куда</label>
+<input class="w-full bg-transparent text-on-surface font-body text-sm outline-none border-none p-0 focus:ring-0" type="text" value="Научная библиотека, 2 этаж"/>
+<div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-primary transition-all duration-300 group-focus-within:w-full"></div>
+</div>
+<button class="w-10 h-10 bg-secondary-container rounded-full flex items-center justify-center text-on-secondary-container hover:bg-primary-container hover:text-on-primary transition-colors duration-300">
+<span class="material-symbols-outlined">swap_vert</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Spacer to push bottom sheet down -->
+<div class="flex-1 pointer-events-none"></div>
+<!-- Bottom Sheet: Route Details -->
+<div class="relative z-20 bg-surface-container-lowest rounded-t-[2rem] shadow-[0_-12px_32px_rgba(25,28,29,0.08)] flex flex-col max-h-[530px]">
+<!-- Pull Handle -->
+<div class="w-full flex justify-center pt-4 pb-2">
+<div class="w-12 h-1.5 bg-surface-variant rounded-full"></div>
+</div>
+<div class="px-6 pb-8 overflow-y-auto">
+<!-- Summary Header -->
+<div class="flex justify-between items-end mb-8 mt-2">
+<div>
+<h2 class="font-display font-bold text-[3.5rem] leading-none text-on-surface tracking-[-0.02em]">2<span class="text-2xl text-on-surface-variant font-medium tracking-normal ml-2">мин ходьбы</span></h2>
+<p class="font-body text-sm text-on-surface-variant mt-2 tracking-[+0.01em]">137 м • в основном внутри здания</p>
+</div>
+<button class="bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-4 rounded-[1.5rem] font-label font-bold text-sm tracking-[+0.04em] uppercase shadow-lg hover:opacity-90 transition-all flex items-center gap-2 cubic-bezier(0.34,1.56,0.64,1) active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">navigation</span>
+                        Начать
+                    </button>
+</div>
+<!-- Steps List (Asymmetric ????nal Layering) -->
+<div class="flex flex-col gap-3">
+<!-- Step 1 -->
+<div class="flex gap-4 p-4 bg-surface-container-low rounded-[1rem]">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed shrink-0">
+<span class="material-symbols-outlined">turn_right</span>
+</div>
+<div class="flex flex-col justify-center">
+<h4 class="font-headline font-semibold text-base text-on-surface tracking-[-0.01em]">Идите на север к главному коридору</h4>
+<p class="font-body text-sm text-on-surface-variant tracking-[+0.01em]">45 м</p>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="flex gap-4 p-4 bg-surface rounded-[1rem]">
+<div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container shrink-0 shadow-[0_8px_16px_rgba(26,86,219,0.15)]">
+<span class="material-symbols-outlined">elevator</span>
+</div>
+<div class="flex flex-col justify-center">
+<h4 class="font-headline font-semibold text-base text-on-surface tracking-[-0.01em]">Поднимитесь на лифте на 2 этаж</h4>
+<p class="font-body text-sm text-on-surface-variant tracking-[+0.01em]">Лифтовая зона A</p>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="flex gap-4 p-4 bg-surface-container-low rounded-[1rem]">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed shrink-0">
+<span class="material-symbols-outlined">turn_left</span>
+</div>
+<div class="flex flex-col justify-center">
+<h4 class="font-headline font-semibold text-base text-on-surface tracking-[-0.01em]">Из лифта поверните налево</h4>
+<p class="font-body text-sm text-on-surface-variant tracking-[+0.01em]">Пункт назначения справа</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

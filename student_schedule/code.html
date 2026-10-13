@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Расписание — UniMap AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#1a56db",
+                        "secondary-container": "#dae4ee",
+                        "on-surface": "#191c1d",
+                        "tertiary-fixed": "#ffdbcf",
+                        "secondary-fixed": "#dae4ee",
+                        "on-tertiary-fixed-variant": "#802a00",
+                        "on-primary-fixed": "#00174d",
+                        "on-primary-fixed-variant": "#003dab",
+                        "surface-dim": "#d9dadb",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e1e3e4",
+                        "on-secondary-container": "#5c666e",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#c3c5d7",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#003fb1",
+                        "tertiary": "#852b00",
+                        "surface-container": "#edeeef",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "surface": "#f8f9fa",
+                        "outline": "#737686",
+                        "surface-container-highest": "#e1e3e4",
+                        "primary-fixed": "#dbe1ff",
+                        "secondary-fixed-dim": "#bec8d1",
+                        "on-secondary-fixed": "#131d24",
+                        "on-tertiary-fixed": "#380d00",
+                        "on-primary-container": "#d4dcff",
+                        "surface-container-high": "#e7e8e9",
+                        "surface-bright": "#f8f9fa",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-secondary-fixed-variant": "#3e4850",
+                        "primary-fixed-dim": "#b5c4ff",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f3f4f5",
+                        "tertiary-container": "#ad3b00",
+                        "surface-tint": "#1353d8",
+                        "on-secondary": "#ffffff",
+                        "background": "#f8f9fa",
+                        "on-surface-variant": "#434654",
+                        "tertiary-fixed-dim": "#ffb59a",
+                        "on-tertiary-container": "#ffd4c5",
+                        "inverse-surface": "#2e3132",
+                        "secondary": "#566068",
+                        "on-background": "#191c1d",
+                        "inverse-primary": "#b5c4ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter", "sans-serif"],
+                        "display": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* No-Line Rule Enforcement helper for debugging, implicitly followed in markup */
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-[0_12px_32px_rgba(25,28,29,0.04)] transition-all duration-300 ease-in-out">
+<div class="flex justify-between items-center px-6 h-16 w-full">
+<button aria-label="Меню" class="text-slate-500 dark:text-slate-400 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-2xl">account_balance</span>
+</button>
+<h1 class="font-['Inter'] font-semibold tracking-tight text-lg font-bold text-blue-900 dark:text-blue-50 tracking-[-0.02em]">
+                UniMap AI
+            </h1>
+<button aria-label="Поиск" class="text-slate-500 dark:text-slate-400 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-2xl">search</span>
+</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="pt-24 pb-28 px-4 md:px-8 max-w-2xl mx-auto min-h-screen flex flex-col gap-8">
+<!-- Header & Date Navigator -->
+<section class="flex flex-col gap-6">
+<div class="flex items-end justify-between">
+<h2 class="font-display font-semibold text-[1.75rem] tracking-[-0.01em] text-on-surface">Расписание на сегодня</h2>
+<button class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">calendar_month</span>
+</button>
+</div>
+<!-- Date Scroller -->
+<div class="flex gap-3 overflow-x-auto pb-4 -mx-4 px-4 snap-x hide-scrollbar" style="scrollbar-width: none;">
+<!-- Past Day -->
+<button class="snap-center shrink-0 flex flex-col items-center justify-center w-16 h-20 rounded-2xl bg-surface-container-low text-on-surface-variant transition-transform active:scale-95">
+<span class="font-label text-[0.6875rem] tracking-[+0.04em] uppercase">Пн</span>
+<span class="font-headline font-semibold text-lg">12</span>
+</button>
+<!-- Current Day (Active) -->
+<button class="snap-center shrink-0 flex flex-col items-center justify-center w-16 h-20 rounded-2xl bg-primary text-on-primary shadow-[0_8px_16px_rgba(0,63,177,0.2)] transition-transform active:scale-95">
+<span class="font-label text-[0.6875rem] tracking-[+0.04em] uppercase opacity-90">Вт</span>
+<span class="font-headline font-semibold text-lg">13</span>
+</button>
+<!-- Future Days -->
+<button class="snap-center shrink-0 flex flex-col items-center justify-center w-16 h-20 rounded-2xl bg-surface-container-lowest shadow-[0_4px_12px_rgba(25,28,29,0.02)] text-on-surface transition-transform active:scale-95">
+<span class="font-label text-[0.6875rem] tracking-[+0.04em] uppercase text-secondary">Ср</span>
+<span class="font-headline font-semibold text-lg">14</span>
+</button>
+<button class="snap-center shrink-0 flex flex-col items-center justify-center w-16 h-20 rounded-2xl bg-surface-container-lowest shadow-[0_4px_12px_rgba(25,28,29,0.02)] text-on-surface transition-transform active:scale-95">
+<span class="font-label text-[0.6875rem] tracking-[+0.04em] uppercase text-secondary">Чт</span>
+<span class="font-headline font-semibold text-lg">15</span>
+</button>
+<button class="snap-center shrink-0 flex flex-col items-center justify-center w-16 h-20 rounded-2xl bg-surface-container-lowest shadow-[0_4px_12px_rgba(25,28,29,0.02)] text-on-surface transition-transform active:scale-95">
+<span class="font-label text-[0.6875rem] tracking-[+0.04em] uppercase text-secondary">Пт</span>
+<span class="font-headline font-semibold text-lg">16</span>
+</button>
+</div>
+</section>
+<!-- Timeline Flow -->
+<section class="flex flex-col gap-6 relative">
+<!-- Subtle background connecting line (architectural feel, not a solid border) -->
+<div class="absolute left-[39px] top-4 bottom-4 w-1 bg-surface-container-high rounded-full -z-10"></div>
+<!-- Past Class -->
+<div class="flex gap-4 items-start group">
+<div class="flex flex-col items-center w-20 shrink-0 pt-1 text-on-surface-variant">
+<span class="font-label font-bold text-[0.6875rem] tracking-[+0.04em]">09:00</span>
+</div>
+<div class="flex-1 bg-surface-container-low rounded-2xl p-5 flex flex-col gap-3 opacity-60 transition-opacity hover:opacity-100">
+<div class="flex justify-between items-start">
+<h3 class="font-headline font-medium text-base text-on-surface-variant line-through decoration-outline-variant">Высшая математика</h3>
+<span class="material-symbols-outlined text-outline-variant text-xl">check_circle</span>
+</div>
+<div class="flex items-center gap-1.5 text-secondary font-label text-[0.6875rem] tracking-[+0.04em] uppercase">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>Аудитория 302, научный корпус</span>
+</div>
+</div>
+</div>
+<!-- Current Class (Active Highlight) -->
+<div class="flex gap-4 items-start relative">
+<!-- Glowing node on timeline -->
+<div class="absolute left-[35px] top-6 w-3 h-3 bg-primary rounded-full shadow-[0_0_12px_rgba(0,63,177,0.6)]"></div>
+<div class="flex flex-col items-center w-20 shrink-0 pt-5 text-primary">
+<span class="font-label font-bold text-[0.6875rem] tracking-[+0.04em]">11:30</span>
+<span class="text-[0.6rem] font-medium text-primary-container mt-1">СЕЙЧАС</span>
+</div>
+<!-- Glassy Active Card -->
+<div class="flex-1 bg-surface-container-lowest rounded-2xl p-5 flex flex-col gap-4 shadow-[0_12px_32px_rgba(25,28,29,0.06)] relative overflow-hidden">
+<!-- Architectural left accent bar instead of border -->
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-primary to-primary-container"></div>
+<div class="flex justify-between items-start">
+<h3 class="font-headline font-semibold text-lg text-on-surface">Теория архитектуры II</h3>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 text-secondary font-label text-[0.6875rem] tracking-[+0.04em] uppercase">
+<span class="material-symbols-outlined text-[1rem]">schedule</span>
+<span>11:30 — 13:00</span>
+</div>
+<div class="flex items-center gap-2 text-secondary font-label text-[0.6875rem] tracking-[+0.04em] uppercase">
+<span class="material-symbols-outlined text-[1rem]">meeting_room</span>
+<span class="text-on-surface font-bold">Студия Б, корпус дизайна</span>
+</div>
+</div>
+<div class="mt-2 flex gap-3">
+<button class="flex-1 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl py-2.5 font-label font-bold text-xs tracking-wide shadow-[0_4px_12px_rgba(0,63,177,0.2)] hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">directions</span>
+                            Маршрут
+                        </button>
+</div>
+</div>
+</div>
+<!-- ????? Class -->
+<div class="flex gap-4 items-start pt-2">
+<div class="flex flex-col items-center w-20 shrink-0 pt-5 text-on-surface">
+<span class="font-label font-bold text-[0.6875rem] tracking-[+0.04em]">14:00</span>
+</div>
+<div class="flex-1 bg-surface-container-lowest rounded-2xl p-5 flex flex-col gap-3 shadow-[0_8px_24px_rgba(25,28,29,0.03)]">
+<div class="flex justify-between items-start">
+<h3 class="font-headline font-medium text-base text-on-surface">Строительные конструкции</h3>
+<span class="text-[0.65rem] font-bold tracking-widest text-secondary uppercase bg-surface-container px-2 py-1 rounded-md">Далее</span>
+</div>
+<div class="flex items-center gap-1.5 text-secondary font-label text-[0.6875rem] tracking-[+0.04em] uppercase">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>Лаб. 4, инженерный корпус</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-[2rem] bg-white/85 dark:bg-slate-900/85 backdrop-blur-2xl shadow-[0_-8px_32px_rgba(0,0,0,0.06)]">
+<!-- Structural ban on top border respected by using shadow and natural background tint -->
+<div class="fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-safe transition-transform duration-300 cubic-bezier(0.34,1.56,0.64,1)">
+<!-- ????? (Inactive) -->
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors active:scale-90 w-16">
+<span class="material-symbols-outlined mb-1">map</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Карта</span>
+</button>
+<!-- ????? (Inactive) -->
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors active:scale-90 w-16">
+<span class="material-symbols-outlined mb-1">search</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Поиск</span>
+</button>
+<!-- ??-??? (Inactive) -->
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors active:scale-90 w-16">
+<span class="material-symbols-outlined mb-1">smart_toy</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">ИИ-чат</span>
+</button>
+<!-- ?????????? (Active) -->
+<button class="flex flex-col items-center justify-center text-blue-700 dark:text-blue-300 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-blue-700 after:rounded-full transition-colors active:scale-90 w-16">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter text-blue-700">Расписание</span>
+</button>
+<!-- ??????? (Inactive) -->
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors active:scale-90 w-16">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Профиль</span>
+</button>
+</div>
+</nav>
+</body></html>

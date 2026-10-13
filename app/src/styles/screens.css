@@ -1,0 +1,671 @@
+/* ============================================================
+   Оболочка и экраны. Продолжение системы «Указатель»:
+   тёмная навигационная рельса как рамка табло, светлые экраны
+   как страницы чертежа.
+   ============================================================ */
+
+.shell { display: grid; grid-template-columns: 76px minmax(0, 1fr); height: 100%; }
+.shell-main { min-width: 0; overflow: hidden; }
+
+/* ── Рельса навигации ────────────────────────────────────── */
+.rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s1);
+  padding: var(--s4) var(--s2);
+  background: var(--ink);
+  z-index: 6;
+}
+.rail-brand {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  margin-bottom: var(--s3);
+  background: var(--sand);
+  color: var(--ink);
+  clip-path: polygon(11px 0, 100% 0, 100% 100%, 0 100%, 0 11px);
+  border-radius: 3px;
+  text-decoration: none;
+}
+.rail-links, .rail-foot { display: flex; flex-direction: column; gap: 2px; width: 100%; }
+.rail-foot { margin-top: auto; }
+
+.rail-link, .rail-live {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  padding: var(--s2) 2px;
+  border-radius: var(--r-sm);
+  color: #8496b4;
+  text-decoration: none;
+  transition: background .14s var(--ease), color .14s var(--ease);
+}
+.rail-link .icon, .rail-live .icon { font-size: 21px; }
+.rail-link em, .rail-live em {
+  font-style: normal;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+.rail-link:hover { background: var(--slate); color: var(--on-dark); }
+.rail-link.active { background: var(--slate-2); color: var(--sand); }
+.rail-live { background: var(--exit); color: #fff; }
+.rail-live em { font-family: var(--font-mono); }
+
+/* ── Каркас экрана ───────────────────────────────────────── */
+.screen { display: flex; flex-direction: column; height: 100%; min-width: 0; }
+
+.screen-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s4);
+  padding: var(--s6) var(--s8) var(--s4);
+  background: var(--card);
+  border-bottom: 1px solid var(--paper-2);
+  z-index: 2;
+}
+.screen-head h1 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -.025em;
+}
+.screen-head p { margin-top: 3px; font-size: 12.5px; color: var(--text-3); }
+.head-icon { font-size: 26px; color: var(--text-3); }
+
+.screen-body {
+  flex: 1;
+  display: grid;
+  gap: var(--s6);
+  align-content: start;
+  padding: var(--s5) var(--s8) var(--s10);
+  overflow: auto;
+}
+.screen-body::-webkit-scrollbar { width: 6px; }
+.screen-body::-webkit-scrollbar-thumb { background: #cbd5e2; border-radius: 999px; }
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-bottom: var(--s3);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--paper-2);
+}
+
+.muted { color: var(--text-3); }
+.list { display: grid; gap: var(--s1); }
+
+/* ── Строка помещения ────────────────────────────────────── */
+.place-row {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) auto auto;
+  gap: var(--s3);
+  align-items: center;
+  padding: var(--s3);
+  border-radius: var(--r-lg);
+  background: var(--card-solid);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 8px 20px rgba(15, 23, 42, .05);
+  transition: box-shadow .18s var(--ease), transform .12s var(--ease);
+}
+.place-row:hover { box-shadow: var(--lift-2); }
+.place-row:active { transform: scale(.98); }
+.place-main { min-width: 0; text-align: left; }
+.place-main strong { display: block; font-size: 15px; font-weight: 650; color: var(--text); }
+.place-main span { display: block; margin-top: 1px; font-size: 12px; color: var(--text-3); }
+.place-row .icon-btn.primary {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--r-md);
+  box-shadow: 0 4px 14px rgba(14, 165, 233, .28);
+  transition: transform .12s var(--ease), background .16s var(--ease);
+}
+.place-row .icon-btn.primary:active { transform: scale(.9); }
+.rail-link:active, .icon-btn:active, .control-btn:active { transform: scale(.92); }
+
+/* ── Чипы ────────────────────────────────────────────────── */
+.chips { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  height: 34px;
+  padding: 0 var(--s3);
+  border: 1px solid var(--paper-2);
+  border-radius: 999px;
+  background: var(--card);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  transition: border-color .14s var(--ease), color .14s var(--ease), background .14s var(--ease);
+}
+.chip .icon { font-size: 16px; }
+.chip:hover { border-color: var(--signal); color: var(--signal); }
+.chip.on { background: var(--ink); border-color: var(--ink); color: var(--sand); }
+
+/* ── Построение маршрута ─────────────────────────────────── */
+.route-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s3); align-items: center; }
+.route-inputs { display: grid; gap: var(--s2); }
+
+/* Сводка маршрута — тёмная плашка табло с крупным моно-числом */
+.route-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--s5);
+  align-items: center;
+  padding: var(--s5);
+  border-radius: var(--r-lg);
+  background: var(--ink);
+  color: var(--on-dark);
+}
+.route-stat { text-align: center; }
+.route-stat strong {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 38px;
+  font-weight: 700;
+  line-height: .9;
+  color: var(--sand);
+}
+.route-stat span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #8496b4;
+}
+.route-meta p { font-size: 13px; }
+.route-meta .muted { color: #8496b4; }
+.route-summary .btn-primary { background: var(--sand); color: #2a1f05; }
+.route-summary .btn-primary:hover { background: #d3a745; }
+
+/* ── Шаги маршрута ───────────────────────────────────────── */
+.steps { display: grid; gap: var(--s1); }
+.step-line {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: var(--s3);
+  align-items: center;
+  width: 100%;
+  padding: var(--s2);
+  border-radius: var(--r-md);
+  background: var(--card);
+  box-shadow: var(--lift-1);
+  text-align: left;
+}
+.steps li.on .step-line { background: var(--signal-soft); box-shadow: none; }
+.steps li.past .step-line { opacity: .5; }
+.step-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-sm);
+  background: var(--slate);
+  color: var(--on-dark);
+}
+.steps li.on .step-icon { background: var(--signal); }
+.step-text strong { display: block; font-size: 13px; font-weight: 600; }
+.step-text em {
+  display: block;
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+/* ── Активная навигация ──────────────────────────────────── */
+.nav-screen { background: var(--paper); }
+.nav-head {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  gap: var(--s3);
+  align-items: center;
+  padding: var(--s3) var(--s4);
+  background: var(--card);
+  border-bottom: 1px solid var(--paper-2);
+}
+.nav-dest { text-align: center; min-width: 0; }
+.nav-dest strong { display: block; font-size: 14.5px; font-weight: 600; }
+.nav-dest span { font-size: 11px; color: var(--text-3); }
+
+.nav-hero {
+  padding: var(--s8) var(--s6);
+  background: var(--ink);
+  color: var(--on-dark);
+  text-align: center;
+}
+.nav-hero-icon { font-size: 62px; color: var(--sand); }
+.nav-hero h1 {
+  margin: var(--s3) 0 var(--s1);
+  font-family: var(--font-display);
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: -.025em;
+}
+.nav-hero p { font-family: var(--font-mono); font-size: 12px; color: #8496b4; }
+
+.nav-progress { padding: var(--s4) var(--s6); background: var(--card); }
+.nav-progress-bar { height: 6px; border-radius: 999px; background: var(--paper-2); overflow: hidden; }
+.nav-progress-bar i { display: block; height: 100%; background: var(--exit); transition: width .3s var(--ease); }
+.nav-figures {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s3);
+  margin-top: var(--s4);
+  text-align: center;
+}
+.nav-figures strong { display: block; font-family: var(--font-mono); font-size: 21px; font-weight: 700; }
+.nav-figures span { font-size: 10.5px; color: var(--text-3); }
+
+.nav-warn {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  margin: var(--s4) var(--s6) 0;
+  padding: var(--s3) var(--s4);
+  border-left: 3px solid var(--sand-deep);
+  border-radius: var(--r-sm);
+  background: #fdf3dd;
+  color: #6b4d05;
+  font-size: 12.5px;
+}
+.nav-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s3);
+  padding: var(--s4) var(--s6);
+}
+.nav-screen .steps { margin: 0 var(--s6) var(--s8); overflow: auto; }
+
+/* ── Расписание ──────────────────────────────────────────── */
+.week { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--s2); }
+.day {
+  display: grid;
+  gap: 1px;
+  padding: var(--s3) 0;
+  border-radius: var(--r-md);
+  background: var(--card);
+  box-shadow: var(--lift-1);
+  transition: background .14s var(--ease);
+}
+.day em { font-style: normal; font-size: 10.5px; color: var(--text-3); }
+.day strong { font-family: var(--font-mono); font-size: 17px; font-weight: 700; }
+.day.on { background: var(--ink); }
+.day.on em { color: #8496b4; }
+.day.on strong { color: var(--sand); }
+
+.lessons { display: grid; gap: var(--s2); }
+.lesson {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr);
+  gap: var(--s4);
+  padding: var(--s4);
+  border-left: 3px solid var(--paper-2);
+  border-radius: var(--r-md);
+  background: var(--card);
+  box-shadow: var(--lift-1);
+}
+.lesson.now { border-left-color: var(--exit); }
+.lesson.next { border-left-color: var(--signal); }
+.lesson.done { opacity: .58; }
+.lesson-time strong { display: block; font-family: var(--font-mono); font-size: 15px; font-weight: 700; }
+.lesson-time span { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); }
+.lesson-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); }
+.lesson-body h3 { font-size: 15px; font-weight: 600; }
+.lesson-body p { margin-top: 2px; font-size: 12.5px; }
+.lesson-place { display: flex; align-items: center; gap: var(--s1); color: var(--text-3); }
+.lesson-body .btn-soft { margin-top: var(--s3); }
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 22px;
+  padding: 0 var(--s2);
+  border-radius: 999px;
+  background: var(--paper-2);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.tag.now { background: #d3f0e0; color: #0c5c38; }
+.tag.next { background: var(--signal-soft); color: var(--signal-deep); }
+
+/* ── Уведомления ─────────────────────────────────────────── */
+.notice {
+  padding: var(--s5);
+  border-left: 3px solid var(--signal);
+  border-radius: var(--r-md);
+  background: var(--card);
+  box-shadow: var(--lift-1);
+}
+.notice.urgent { border-left-color: var(--alarm); }
+.notice-head {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+.notice.urgent .notice-head { color: var(--alarm); }
+.notice-head .icon { font-size: 18px; }
+.notice h3 { margin-top: var(--s2); font-size: 17px; font-weight: 600; }
+.notice-rows { display: grid; gap: 3px; margin: var(--s3) 0 var(--s4); }
+.notice-rows p { display: flex; align-items: center; gap: var(--s2); font-size: 12.5px; color: var(--text-2); }
+.notice-actions { display: flex; flex-wrap: wrap; gap: var(--s2); }
+
+/* ── Профиль ─────────────────────────────────────────────── */
+.profile-card {
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr);
+  gap: var(--s4);
+  align-items: center;
+  padding: var(--s5);
+  border-radius: var(--r-lg);
+  background: var(--ink);
+  color: var(--on-dark);
+}
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  background: var(--sand);
+  color: var(--ink);
+  clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%, 0 16px);
+  border-radius: 3px;
+}
+.avatar .icon { font-size: 34px; }
+.profile-card h2 { font-family: var(--font-display); font-size: 19px; font-weight: 600; }
+.profile-card .muted { color: #8496b4; }
+.profile-tags { display: flex; flex-wrap: wrap; gap: var(--s1); margin-top: var(--s2); }
+.profile-card .tag { background: var(--slate-2); color: #b9c8de; }
+
+/* ── Чат ─────────────────────────────────────────────────── */
+.chat-screen { background: var(--paper); }
+.chat-log {
+  flex: 1;
+  display: grid;
+  gap: var(--s3);
+  align-content: start;
+  padding: var(--s5) var(--s8);
+  overflow: auto;
+}
+.bubble { display: flex; gap: var(--s2); max-width: min(72%, 620px); }
+.bubble.me { flex-direction: row-reverse; margin-left: auto; }
+.bubble-avatar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  background: var(--ink);
+  color: var(--sand);
+  border-radius: var(--r-sm);
+  font-size: 19px;
+}
+.bubble-body {
+  padding: var(--s3) var(--s4);
+  border-radius: var(--r-md);
+  background: var(--card);
+  box-shadow: var(--lift-1);
+}
+.bubble.me .bubble-body { background: var(--signal); color: #fff; }
+.bubble-body p { font-size: 13.5px; line-height: 1.5; }
+.bubble-action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  margin-top: var(--s2);
+  padding: var(--s2) var(--s3);
+  border-radius: var(--r-sm);
+  background: var(--signal-soft);
+  color: var(--signal-deep);
+  font-size: 12px;
+  font-weight: 600;
+}
+.bubble-action .icon { font-size: 17px; }
+.chat-suggest { display: flex; flex-wrap: wrap; gap: var(--s2); padding: 0 var(--s8) var(--s3); }
+.chat-input {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--s3);
+  padding: var(--s3) var(--s8) var(--s5);
+  background: var(--card);
+  border-top: 1px solid var(--paper-2);
+}
+.chat-input input {
+  height: 48px;
+  padding: 0 var(--s4);
+  border: 1.5px solid transparent;
+  border-radius: var(--r-md);
+  background: var(--paper-2);
+  font-size: 14px;
+  outline: 0;
+}
+.chat-input input:focus { border-color: var(--signal); background: var(--card); }
+.chat-input input:focus-visible { outline: none; }
+.chat-input .icon-btn { width: 48px; height: 48px; }
+
+/* ── Гостевой режим ──────────────────────────────────────── */
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--s3); }
+.tile {
+  display: grid;
+  gap: 3px;
+  justify-items: start;
+  padding: var(--s5);
+  border-radius: var(--r-lg);
+  background: var(--card);
+  box-shadow: var(--lift-1);
+  text-align: left;
+  transition: transform .16s var(--ease), box-shadow .16s var(--ease);
+}
+.tile:hover { transform: translateY(-2px); box-shadow: var(--lift-2); }
+.tile-icon { margin-bottom: var(--s2); font-size: 30px; color: var(--sand-deep); }
+.tile strong { font-size: 15px; font-weight: 600; }
+.tile em { font-style: normal; font-size: 11.5px; color: var(--text-3); }
+
+.hint {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s3);
+  padding: var(--s4);
+  border-left: 3px solid var(--signal);
+  border-radius: var(--r-sm);
+  background: var(--signal-soft);
+  color: var(--signal-deep);
+  font-size: 12.5px;
+}
+
+/* ── Приветственный экран ────────────────────────────────── */
+.onboard { display: grid; grid-template-columns: 1.05fr 1fr; height: 100%; }
+
+/* Левая половина — фрагмент плана этажа тонкими линиями,
+   как настоящий чертёж под стеклом */
+.onboard-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--ink);
+}
+.onboard-art::before {
+  content: '';
+  position: absolute;
+  inset: -10%;
+  background:
+    repeating-linear-gradient(90deg, rgba(227, 184, 92, .13) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(0deg, rgba(227, 184, 92, .13) 0 1px, transparent 1px 64px);
+}
+.onboard-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 32% 34%, rgba(44, 107, 232, .3), transparent 58%);
+}
+.onboard-pin {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s4) var(--s5);
+  border-radius: var(--r-md);
+  background: var(--card);
+  box-shadow: var(--lift-3);
+  clip-path: polygon(14px 0, 100% 0, 100% 100%, 0 100%, 0 14px);
+}
+.onboard-pin .icon { font-size: 30px; color: var(--alarm); }
+.onboard-pin em {
+  display: block;
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  color: var(--text-3);
+}
+.onboard-pin strong { display: block; margin-top: 2px; font-size: 14px; font-weight: 600; }
+
+.onboard-body {
+  display: grid;
+  gap: var(--s4);
+  align-content: center;
+  padding: var(--s10) 52px;
+  overflow: auto;
+  background: var(--card);
+}
+.onboard-body h1 {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 4.6vw, 44px);
+  font-weight: 600;
+  letter-spacing: -.035em;
+  line-height: 1.02;
+}
+.lead { max-width: 46ch; font-size: 14.5px; line-height: 1.6; color: var(--text-2); }
+
+.onboard-features { display: grid; gap: var(--s2); }
+.feature {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: var(--s3);
+  align-items: start;
+  padding: var(--s3) var(--s4);
+  border-radius: var(--r-md);
+  background: var(--paper);
+}
+.feature > .icon { grid-row: span 2; font-size: 21px; color: var(--sand-deep); }
+.feature strong { font-size: 13px; font-weight: 600; }
+.feature em { font-style: normal; font-size: 12px; color: var(--text-3); }
+
+.onboard-actions { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s1); }
+
+/* ── Карточка ближайшей пары на первом экране ───────────────
+   Тот же язык, что и .lesson в расписании, но крупнее и с акцентом —
+   это единственное, что должен понять новичок за первые 3 секунды. */
+.welcome-lesson {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: var(--s4);
+  align-items: center;
+  padding: var(--s4) var(--s5);
+  border-radius: var(--r-lg);
+  background: var(--ink);
+  color: var(--on-dark);
+}
+.welcome-lesson-time { text-align: center; }
+.welcome-lesson-time strong { display: block; font-family: var(--font-mono); font-size: 19px; font-weight: 700; color: var(--sand); }
+.welcome-lesson-time span { font-family: var(--font-mono); font-size: 11px; color: #8496b4; }
+.welcome-lesson-body { display: grid; gap: 2px; min-width: 0; }
+.welcome-lesson-body > strong { font-size: 15px; font-weight: 600; }
+.welcome-lesson-body > span { font-size: 12.5px; color: #b9c8de; }
+.welcome-lesson-place { display: flex; align-items: center; gap: var(--s1); margin-top: 3px; font-weight: 600; color: var(--on-dark); }
+
+.onboard-guest-link {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  margin-top: var(--s2);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-3);
+}
+.onboard-guest-link:hover { color: var(--signal); }
+
+/* ── Пустые состояния ────────────────────────────────────── */
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--s3);
+  padding: 64px var(--s5);
+  text-align: center;
+  color: var(--text-3);
+}
+.empty > .icon { font-size: 44px; opacity: .45; }
+.empty p { font-size: 13.5px; }
+
+/* ── Телефон: рельса уходит вниз ─────────────────────────── */
+@media (max-width: 900px) {
+  /* minmax(0, 1fr) вместо 1fr: у grid-элементов min-width: auto, из-за чего
+     строка навигации не могла сжаться и вылезала за край окна */
+  .shell { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
+  .shell-main { order: 1; }
+  .rail {
+    order: 2;
+    min-width: 0;
+    flex-direction: row;
+    gap: 0;
+    padding: var(--s1) var(--s1);
+    padding-bottom: max(var(--s1), env(safe-area-inset-bottom));
+  }
+  .rail-brand { display: none; }
+  .rail-links { flex: 1; min-width: 0; width: auto; flex-direction: row; justify-content: space-between; }
+  .rail-foot { flex-direction: row; width: auto; margin: 0; }
+  .rail-link, .rail-live { min-width: 0; padding: var(--s2) var(--s1); }
+  .rail-link em, .rail-live em { font-size: 9px; }
+
+  .screen-head { padding: var(--s4) var(--s4) var(--s3); }
+  .screen-head h1 { font-size: 19px; }
+  .screen-body { gap: var(--s5); padding: var(--s4) var(--s4) var(--s8); }
+  .chat-log, .chat-suggest, .chat-input { padding-left: var(--s4); padding-right: var(--s4); }
+  .bubble { max-width: 88%; }
+
+  .route-summary { grid-template-columns: auto minmax(0, 1fr); gap: var(--s4); padding: var(--s4); }
+  .route-summary .btn { grid-column: 1 / -1; }
+  .route-stat strong { font-size: 32px; }
+
+  .nav-hero { padding: var(--s6) var(--s4); }
+  .nav-hero h1 { font-size: 21px; }
+  .nav-progress, .nav-actions { padding-left: var(--s4); padding-right: var(--s4); }
+  .nav-warn { margin-left: var(--s4); margin-right: var(--s4); }
+  .nav-screen .steps { margin: 0 var(--s4) var(--s6); }
+
+  .onboard { grid-template-columns: 1fr; grid-template-rows: 34vh minmax(0, 1fr); }
+  .onboard-body { padding: var(--s6) var(--s5) var(--s8); }
+  .lesson { grid-template-columns: 54px minmax(0, 1fr); gap: var(--s3); padding: var(--s3); }
+  .place-row { grid-template-columns: 46px minmax(0, 1fr) auto auto; }
+}

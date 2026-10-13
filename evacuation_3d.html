@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Эвакуациялық Жоспар 3D — 1 Қабат</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a1a; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+  #canvas { display: block; }
+  #ui {
+    position: fixed; top: 20px; left: 20px; z-index: 100;
+    color: #fff; pointer-events: none;
+  }
+  #ui h1 {
+    font-size: 18px; font-weight: 700; letter-spacing: 2px;
+    text-shadow: 0 0 20px #00aaff;
+    background: linear-gradient(135deg, #00aaff, #00ffaa);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  #ui p { font-size: 12px; color: #aaa; margin-top: 4px; }
+  #legend {
+    position: fixed; top: 20px; right: 20px; z-index: 100;
+    background: rgba(0,0,0,0.75); border: 1px solid #333;
+    border-radius: 12px; padding: 14px 18px;
+    backdrop-filter: blur(10px); color: #fff;
+  }
+  #legend h3 { font-size: 12px; letter-spacing: 1px; color: #00aaff; margin-bottom: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; margin: 6px 0; font-size: 11px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  #emergency {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: #cc0000; color: #fff; padding: 12px 36px;
+    border-radius: 8px; font-size: 20px; font-weight: 900;
+    letter-spacing: 3px; text-align: center;
+    box-shadow: 0 0 30px #ff0000, 0 0 60px rgba(255,0,0,0.3);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 20px #ff0000, 0 0 40px rgba(255,0,0,0.3); }
+    50% { box-shadow: 0 0 40px #ff4444, 0 0 80px rgba(255,0,0,0.5); }
+  }
+  #controls {
+    position: fixed; bottom: 30px; right: 20px; z-index: 100;
+    color: #555; font-size: 11px; text-align: right;
+  }
+  #controls span { display: block; margin: 2px 0; }
+  .glow { animation: glow 3s ease-in-out infinite alternate; }
+  @keyframes glow {
+    from { filter: brightness(1); }
+    to   { filter: brightness(1.4); }
+  }
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<div id="ui">
+  <h1>ЭВАКУАЦИЯЛЫҚ ЖОСПАР</h1>
+  <p>1 ҚАБАТ &nbsp;·&nbsp; 3D ВИЗУАЛИЗАЦИЯ</p>
+</div>
+
+<div id="legend">
+  <h3>ШАРТТЫ БЕЛГІЛЕР</h3>
+  <div class="legend-item"><div class="legend-dot" style="background:#e74c3c;"></div> Өрт сөндіргіш</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f39c12;"></div> Электрщит</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2ecc71;"></div> ШЫҒУ / Выход</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#3498db;"></div> Алғашқы мед. көмек</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#9b59b6;"></div> Телефон</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1abc9c;"></div> Эвакуация жолы</div>
+</div>
+
+<div id="emergency">ӨРТ КЕЗІНДЕ ХАБАРЛАУ: 101</div>
+
+<div id="controls">
+  <span>🖱 Бағыт: Тышқан сол жақ</span>
+  <span>🔍 Масштаб: Дөңгелек</span>
+  <span>✋ Жылжу: Орта батырма</span>
+</div>
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+
+// ─── Scene Setup ──────────────────────────────────────────────────────────────
+const canvas = document.getElementById('canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0a1a);
+scene.fog = new THREE.Fog(0x0a0a1a, 60, 120);
+
+const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 500);
+camera.position.set(0, 45, 55);
+camera.lookAt(0, 0, 0);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.minDistance = 15;
+controls.maxDistance = 100;
+controls.maxPolarAngle = Math.PI / 2.1;
+controls.target.set(0, 0, 0);
+
+// ─── Lighting ─────────────────────────────────────────────────────────────────
+const ambient = new THREE.AmbientLight(0x223344, 0.8);
+scene.add(ambient);
+
+const sun = new THREE.DirectionalLight(0xffffff, 2.5);
+sun.position.set(20, 40, 20);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.near = 0.5;
+sun.shadow.camera.far = 200;
+sun.shadow.camera.left = -60;
+sun.shadow.camera.right = 60;
+sun.shadow.camera.top = 60;
+sun.shadow.camera.bottom = -60;
+sun.shadow.bias = -0.001;
+scene.add(sun);
+
+const fill = new THREE.DirectionalLight(0x4488ff, 0.8);
+fill.position.set(-20, 20, -20);
+scene.add(fill);
+
+// ─── Materials ────────────────────────────────────────────────────────────────
+const floorMat = new THREE.MeshStandardMaterial({
+  color: 0xd4c9b0, roughness: 0.8, metalness: 0.05
+});
+const wallMat = new THREE.MeshStandardMaterial({
+  color: 0xe8e0d0, roughness: 0.85, metalness: 0.0
+});
+const roofMat = new THREE.MeshStandardMaterial({
+  color: 0xb0c8e8, roughness: 0.6, metalness: 0.1,
+  transparent: true, opacity: 0.18, side: THREE.DoubleSide
+});
+const corridorMat = new THREE.MeshStandardMaterial({
+  color: 0xc8bfa8, roughness: 0.9, metalness: 0.0
+});
+const exitMat = new THREE.MeshStandardMaterial({
+  color: 0x00dd66, roughness: 0.3, metalness: 0.4,
+  emissive: 0x003311, emissiveIntensity: 0.5
+});
+const fireMat = new THREE.MeshStandardMaterial({
+  color: 0xff2222, roughness: 0.4, metalness: 0.6,
+  emissive: 0x440000, emissiveIntensity: 0.6
+});
+const elecMat = new THREE.MeshStandardMaterial({
+  color: 0xffaa00, roughness: 0.3, metalness: 0.7,
+  emissive: 0x442200, emissiveIntensity: 0.5
+});
+const medMat = new THREE.MeshStandardMaterial({
+  color: 0x0088ff, roughness: 0.3, metalness: 0.5,
+  emissive: 0x001133, emissiveIntensity: 0.4
+});
+const arrowMat = new THREE.MeshStandardMaterial({
+  color: 0x00ff88, roughness: 0.2, metalness: 0.3,
+  emissive: 0x00aa44, emissiveIntensity: 0.8
+});
+
+// ─── Geometry Helpers ─────────────────────────────────────────────────────────
+const WH = 3.0; // wall height
+const WT = 0.35; // wall thickness
+
+function addFloor(x, z, w, d, mat = floorMat, yOff = 0) {
+  const geo = new THREE.BoxGeometry(w, 0.15, d);
+  const m = new THREE.Mesh(geo, mat);
+  m.position.set(x, yOff, z);
+  m.receiveShadow = true;
+  scene.add(m);
+}
+function addWall(x, y, z, w, h, d, mat = wallMat) {
+  const geo = new THREE.BoxGeometry(w, h, d);
+  const m = new THREE.Mesh(geo, mat);
+  m.position.set(x, y, z);
+  m.castShadow = true;
+  m.receiveShadow = true;
+  scene.add(m);
+  return m;
+}
+function addRoof(x, z, w, d) {
+  const geo = new THREE.BoxGeometry(w, 0.1, d);
+  const m = new THREE.Mesh(geo, roofMat);
+  m.position.set(x, WH + 0.1, z);
+  scene.add(m);
+}
+function box(x, y, z, w, h, d, mat) {
+  const geo = new THREE.BoxGeometry(w, h, d);
+  const m = new THREE.Mesh(geo, mat);
+  m.position.set(x, y, z);
+  m.castShadow = true;
+  scene.add(m);
+  return m;
+}
+function cylinder(x, y, z, r, h, mat) {
+  const geo = new THREE.CylinderGeometry(r, r, h, 16);
+  const m = new THREE.Mesh(geo, mat);
+  m.position.set(x, y, z);
+  m.castShadow = true;
+  scene.add(m);
+  return m;
+}
+function pointLight(x, y, z, color, intensity = 3, distance = 8) {
+  const l = new THREE.PointLight(color, intensity, distance);
+  l.position.set(x, y, z);
+  scene.add(l);
+}
+
+// ─── Floor Plan Layout ────────────────────────────────────────────────────────
+// Based on the evacuation plan image:
+// Left wing, center corridor, right wing, bottom connector
+
+// GROUND PLANE (subtle grid)
+const gridHelper = new THREE.GridHelper(120, 60, 0x1a2a3a, 0x111820);
+gridHelper.position.y = -0.1;
+scene.add(gridHelper);
+
+// ── LEFT WING ─────────────────────────────────────────────────────────────────
+const LW_X = -18, LW_Z = -4, LW_W = 22, LW_D = 28;
+addFloor(LW_X, LW_Z, LW_W, LW_D);
+
+// outer walls
+addWall(LW_X, WH/2, LW_Z - LW_D/2, LW_W, WH, WT);        // south
+addWall(LW_X, WH/2, LW_Z + LW_D/2, LW_W, WH, WT);        // north
+addWall(LW_X - LW_W/2, WH/2, LW_Z, WT, WH, LW_D);        // west
+addWall(LW_X + LW_W/2, WH/2, LW_Z, WT, WH, LW_D);        // east (partial, opening)
+
+// Interior room dividers (left wing has ~4 rooms)
+addWall(LW_X, WH/2, LW_Z - 5, LW_W, WH, WT);  // divider 1
+addWall(LW_X, WH/2, LW_Z + 5, LW_W, WH, WT);  // divider 2
+addWall(LW_X - 3, WH/2, LW_Z, WT, WH, 10);    // vertical divider mid
+
+// Roof left wing (transparent)
+addRoof(LW_X, LW_Z, LW_W, LW_D);
+
+// ── RIGHT WING ────────────────────────────────────────────────────────────────
+const RW_X = 14, RW_Z = -6, RW_W = 16, RW_D = 20;
+addFloor(RW_X, RW_Z, RW_W, RW_D);
+
+addWall(RW_X, WH/2, RW_Z - RW_D/2, RW_W, WH, WT);
+addWall(RW_X, WH/2, RW_Z + RW_D/2, RW_W, WH, WT);
+addWall(RW_X - RW_W/2, WH/2, RW_Z, WT, WH, RW_D);
+addWall(RW_X + RW_W/2, WH/2, RW_Z, WT, WH, RW_D);
+
+// Interior right wing rooms
+addWall(RW_X, WH/2, RW_Z - 3, RW_W, WH, WT);
+addWall(RW_X, WH/2, RW_Z + 4, RW_W, WH, WT);
+
+addRoof(RW_X, RW_Z, RW_W, RW_D);
+
+// ── CENTER CORRIDOR (horizontal connector) ────────────────────────────────────
+const CC_X = -2, CC_Z = 4, CC_W = 28, CC_D = 8;
+addFloor(CC_X, CC_Z, CC_W, CC_D, corridorMat);
+
+addWall(CC_X, WH/2, CC_Z - CC_D/2, CC_W, WH, WT);
+addWall(CC_X, WH/2, CC_Z + CC_D/2, CC_W, WH, WT);
+addRoof(CC_X, CC_Z, CC_W, CC_D);
+
+// ── BOTTOM CONNECTOR ─────────────────────────────────────────────────────────
+const BC_X = 0, BC_Z = 14, BC_W = 36, BC_D = 10;
+addFloor(BC_X, BC_Z, BC_W, BC_D, corridorMat);
+
+addWall(BC_X, WH/2, BC_Z - BC_D/2, BC_W, WH, WT);
+addWall(BC_X, WH/2, BC_Z + BC_D/2, BC_W, WH, WT);
+addWall(BC_X - BC_W/2, WH/2, BC_Z, WT, WH, BC_D);
+addWall(BC_X + BC_W/2, WH/2, BC_Z, WT, WH, BC_D);
+addRoof(BC_X, BC_Z, BC_W, BC_D);
+
+// ── STAIRCASE AREAS ───────────────────────────────────────────────────────────
+const stairMat = new THREE.MeshStandardMaterial({
+  color: 0x8899aa, roughness: 0.6, metalness: 0.2
+});
+function addStairs(x, z) {
+  for (let i = 0; i < 5; i++) {
+    const geo = new THREE.BoxGeometry(3, 0.15 + i * 0.12, 0.6);
+    const m = new THREE.Mesh(geo, stairMat);
+    m.position.set(x, 0.08 + i * 0.12, z - 1.2 + i * 0.6);
+    m.castShadow = true;
+    scene.add(m);
+  }
+}
+addStairs(-22, -14);   // west staircase
+addStairs(20, -12);    // east staircase
+
+// ─── EXIT SIGNS ───────────────────────────────────────────────────────────────
+function addExitSign(x, y, z, label = 'ШЫҒУ') {
+  // Green glowing sign
+  const signGeo = new THREE.BoxGeometry(2.2, 0.8, 0.15);
+  const signMat = new THREE.MeshStandardMaterial({
+    color: 0x00ee55, roughness: 0.2, metalness: 0.3,
+    emissive: 0x00aa33, emissiveIntensity: 1.2
+  });
+  const sign = new THREE.Mesh(signGeo, signMat);
+  sign.position.set(x, y, z);
+  scene.add(sign);
+  pointLight(x, y, z, 0x00ff66, 2.5, 6);
+
+  // Door frame
+  const doorFrameMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.7 });
+  const frameTop = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.15, 0.3), doorFrameMat);
+  frameTop.position.set(x, y - 1.2, z);
+  scene.add(frameTop);
+}
+
+addExitSign(-27.5, WH - 0.4, LW_Z - 5,   'ШЫҒУ'); // west exit top
+addExitSign(LW_X,  WH - 0.4, LW_Z + 14); // left wing north
+addExitSign(RW_X,  WH - 0.4, RW_Z - 10); // right wing top
+addExitSign(BC_X,  WH - 0.4, BC_Z + 5);  // bottom exit
+addExitSign(2,     WH - 0.4, BC_Z + 5);  // bottom center exit
+
+// ─── FIRE EXTINGUISHERS ───────────────────────────────────────────────────────
+function addFireExt(x, z) {
+  // cylinder body
+  const body = cylinder(x, 0.6, z, 0.18, 1.0, fireMat);
+  // top
+  box(x, 1.15, z, 0.2, 0.15, 0.2, new THREE.MeshStandardMaterial({
+    color: 0x880000, metalness: 0.8, roughness: 0.2
+  }));
+  // nozzle
+  box(x + 0.22, 1.2, z, 0.3, 0.06, 0.06, new THREE.MeshStandardMaterial({
+    color: 0x333333, metalness: 0.9
+  }));
+  pointLight(x, 1.5, z, 0xff3300, 1.5, 4);
+}
+
+addFireExt(-24, -12);
+addFireExt(-25, 2);
+addFireExt(-10, -14);
+addFireExt(5, -12);
+addFireExt(12, -14);
+addFireExt(18, -8);
+addFireExt(6, 10);
+addFireExt(-8, 18);
+addFireExt(12, 18);
+
+// ─── ELECTRICAL PANELS ────────────────────────────────────────────────────────
+function addElecPanel(x, z) {
+  box(x, 1.2, z, 0.8, 1.0, 0.15, elecMat);
+  // warning triangle above
+  const triGeo = new THREE.ConeGeometry(0.25, 0.4, 3);
+  const tri = new THREE.Mesh(triGeo, new THREE.MeshStandardMaterial({
+    color: 0xffcc00, emissive: 0x554400, emissiveIntensity: 0.8
+  }));
+  tri.position.set(x, 2.1, z);
+  scene.add(tri);
+  pointLight(x, 1.8, z, 0xffaa00, 1.8, 5);
+}
+
+addElecPanel(-20, -14);
+addElecPanel(-14, 8);
+addElecPanel(4, -14);
+addElecPanel(6, 18);
+addElecPanel(16, -14);
+
+// ─── FIRST AID STATIONS ───────────────────────────────────────────────────────
+function addFirstAid(x, z) {
+  const box3 = new THREE.Mesh(
+    new THREE.BoxGeometry(0.6, 0.6, 0.15), medMat
+  );
+  box3.position.set(x, 1.5, z);
+  scene.add(box3);
+  // cross symbol
+  box(x, 1.5, z, 0.4, 0.1, 0.2, new THREE.MeshStandardMaterial({
+    color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.5
+  }));
+  box(x, 1.5, z, 0.1, 0.4, 0.2, new THREE.MeshStandardMaterial({
+    color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.5
+  }));
+  pointLight(x, 2, z, 0x0088ff, 1.5, 4);
+}
+
+addFirstAid(-6, 18);
+addFirstAid(2, 18);
+
+// ─── EVACUATION ARROWS ────────────────────────────────────────────────────────
+function addArrow(x, z, rotY = 0) {
+  const shape = new THREE.Shape();
+  shape.moveTo(0, 0.4);
+  shape.lineTo(0.7, 0.4);
+  shape.lineTo(0.7, 0.7);
+  shape.lineTo(1.2, 0);
+  shape.lineTo(0.7, -0.7);
+  shape.lineTo(0.7, -0.4);
+  shape.lineTo(0, -0.4);
+  shape.closePath();
+
+  const extSettings = { depth: 0.08, bevelEnabled: true, bevelSize: 0.04, bevelThickness: 0.04 };
+  const geo = new THREE.ExtrudeGeometry(shape, extSettings);
+  const m = new THREE.Mesh(geo, arrowMat);
+  m.rotation.x = -Math.PI / 2;
+  m.rotation.z = rotY;
+  m.position.set(x - 0.6, 0.1, z + 0.4);
+  scene.add(m);
+}
+
+// Main evacuation route arrows
+addArrow(-22, 6, 0);
+addArrow(-16, 6, 0);
+addArrow(-10, 6, 0);
+addArrow(-22, -8, Math.PI / 2);
+addArrow(-22, -2, Math.PI / 2);
+addArrow(10, -8, -Math.PI / 2);
+addArrow(10, -2, -Math.PI / 2);
+addArrow(-4, 12, Math.PI);
+addArrow(2, 12, Math.PI);
+addArrow(8, 12, Math.PI);
+
+// ─── ROOM LABELS (floating text via sprites) ──────────────────────────────────
+function makeTextSprite(text, color = '#ffffff', fontSize = 48) {
+  const canvas2 = document.createElement('canvas');
+  canvas2.width = 512; canvas2.height = 128;
+  const ctx = canvas2.getContext('2d');
+  ctx.clearRect(0, 0, 512, 128);
+  ctx.font = `bold ${fontSize}px Arial`;
+  ctx.fillStyle = color;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(0,0,0,0.8)';
+  ctx.shadowBlur = 8;
+  ctx.fillText(text, 256, 64);
+  const tex = new THREE.CanvasTexture(canvas2);
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(6, 1.5, 1);
+  return sprite;
+}
+
+function addLabel(text, x, y, z, color = '#ccddff', size = 44) {
+  const s = makeTextSprite(text, color, size);
+  s.position.set(x, y, z);
+  scene.add(s);
+}
+
+addLabel('Аудитория 1', -22, 2.8, -10, '#aabbff');
+addLabel('Аудитория 2', -14, 2.8, -10, '#aabbff');
+addLabel('Аудитория 3', -22, 2.8, 2,   '#aabbff');
+addLabel('Коридор',      -3,  2.8, 4,   '#99ffbb');
+addLabel('Аудитория 4',  14,  2.8, -10, '#aabbff');
+addLabel('Кабинет',      14,  2.8, -3,  '#aabbff');
+addLabel('Холл',          0,  2.8,  14, '#99ffbb');
+addLabel('ШЫҒУ →',      -27.5, 2.8, LW_Z - 5, '#00ff88', 40);
+addLabel('ШЫҒУ ↑',       14,   2.8, RW_Z - 10, '#00ff88', 40);
+
+// ─── DECORATIVE LIGHTS (ceiling) ─────────────────────────────────────────────
+const ceilingLights = [
+  [-22, WH - 0.2, -10], [-14, WH - 0.2, -10],
+  [-22, WH - 0.2, 2],   [-10, WH - 0.2, 4],
+  [ 14, WH - 0.2, -8],  [  0, WH - 0.2, 14],
+  [  8, WH - 0.2, 14],
+];
+ceilingLights.forEach(([x, y, z]) => {
+  const geo = new THREE.SphereGeometry(0.15, 8, 8);
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0xfffae0, emissive: 0xfffae0, emissiveIntensity: 2
+  });
+  const m = new THREE.Mesh(geo, mat);
+  m.position.set(x, y, z);
+  scene.add(m);
+  pointLight(x, y - 0.3, z, 0xfffae0, 2, 12);
+});
+
+// ─── COLUMN DETAILS ───────────────────────────────────────────────────────────
+const colMat = new THREE.MeshStandardMaterial({ color: 0xccbbaa, roughness: 0.7, metalness: 0.1 });
+[
+  [-8, -14], [0, -14], [-8, 8], [0, 8],
+  [8, -6], [8, 2]
+].forEach(([x, z]) => {
+  cylinder(x, WH / 2, z, 0.25, WH, colMat);
+});
+
+// ─── ANIMATED EVACUATION PATH (pulsing dots) ──────────────────────────────────
+const pathPoints = [
+  new THREE.Vector3(-14, 0.25, -10),
+  new THREE.Vector3(-14, 0.25, 4),
+  new THREE.Vector3(-10, 0.25, 4),
+  new THREE.Vector3(-4, 0.25, 4),
+  new THREE.Vector3(-4, 0.25, 10),
+  new THREE.Vector3(-4, 0.25, 18),
+  new THREE.Vector3(0, 0.25, 19),
+];
+const pathCurve = new THREE.CatmullRomCurve3(pathPoints);
+const pathGeo = new THREE.TubeGeometry(pathCurve, 60, 0.08, 8, false);
+const pathMat = new THREE.MeshStandardMaterial({
+  color: 0x00ff88, emissive: 0x00aa44, emissiveIntensity: 1.5,
+  transparent: true, opacity: 0.7
+});
+const pathMesh = new THREE.Mesh(pathGeo, pathMat);
+scene.add(pathMesh);
+
+// Moving dot along path
+const dotGeo = new THREE.SphereGeometry(0.25, 12, 12);
+const dotMat = new THREE.MeshStandardMaterial({
+  color: 0x00ffaa, emissive: 0x00ffaa, emissiveIntensity: 3
+});
+const dot = new THREE.Mesh(dotGeo, dotMat);
+scene.add(dot);
+const dotLight = new THREE.PointLight(0x00ffaa, 3, 6);
+scene.add(dotLight);
+
+// ─── PARTICLES (ambient dust) ─────────────────────────────────────────────────
+const particleCount = 300;
+const particleGeo = new THREE.BufferGeometry();
+const positions = new Float32Array(particleCount * 3);
+for (let i = 0; i < particleCount; i++) {
+  positions[i * 3]     = (Math.random() - 0.5) * 60;
+  positions[i * 3 + 1] = Math.random() * 4;
+  positions[i * 3 + 2] = (Math.random() - 0.5) * 60;
+}
+particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+const particleMat = new THREE.PointsMaterial({
+  color: 0x88bbff, size: 0.08, transparent: true, opacity: 0.4
+});
+const particles = new THREE.Points(particleGeo, particleMat);
+scene.add(particles);
+
+// ─── RENDER LOOP ──────────────────────────────────────────────────────────────
+let t = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  t += 0.005;
+
+  // Moving evacuation dot
+  const pt = pathCurve.getPoint((t * 0.3) % 1);
+  dot.position.copy(pt);
+  dotLight.position.copy(pt);
+
+  // Pulsing path
+  pathMat.opacity = 0.5 + 0.25 * Math.sin(t * 4);
+
+  // Rotate particles slightly
+  particles.rotation.y = t * 0.02;
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+// ─── RESIZE ───────────────────────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>

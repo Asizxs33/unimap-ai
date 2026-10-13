@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Гостевой режим - UniMap AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary-container": "#1a56db",
+                "secondary-container": "#dae4ee",
+                "on-surface": "#191c1d",
+                "tertiary-fixed": "#ffdbcf",
+                "secondary-fixed": "#dae4ee",
+                "on-tertiary-fixed-variant": "#802a00",
+                "on-primary-fixed": "#00174d",
+                "on-primary-fixed-variant": "#003dab",
+                "surface-dim": "#d9dadb",
+                "on-primary": "#ffffff",
+                "surface-variant": "#e1e3e4",
+                "on-secondary-container": "#5c666e",
+                "surface-container-lowest": "#ffffff",
+                "outline-variant": "#c3c5d7",
+                "on-tertiary": "#ffffff",
+                "primary": "#003fb1",
+                "tertiary": "#852b00",
+                "surface-container": "#edeeef",
+                "error-container": "#ffdad6",
+                "error": "#ba1a1a",
+                "surface": "#f8f9fa",
+                "outline": "#737686",
+                "surface-container-highest": "#e1e3e4",
+                "primary-fixed": "#dbe1ff",
+                "secondary-fixed-dim": "#bec8d1",
+                "on-secondary-fixed": "#131d24",
+                "on-tertiary-fixed": "#380d00",
+                "on-primary-container": "#d4dcff",
+                "surface-container-high": "#e7e8e9",
+                "surface-bright": "#f8f9fa",
+                "on-error": "#ffffff",
+                "inverse-on-surface": "#f0f1f2",
+                "on-secondary-fixed-variant": "#3e4850",
+                "primary-fixed-dim": "#b5c4ff",
+                "on-error-container": "#93000a",
+                "surface-container-low": "#f3f4f5",
+                "tertiary-container": "#ad3b00",
+                "surface-tint": "#1353d8",
+                "on-secondary": "#ffffff",
+                "background": "#f8f9fa",
+                "on-surface-variant": "#434654",
+                "tertiary-fixed-dim": "#ffb59a",
+                "on-tertiary-container": "#ffd4c5",
+                "inverse-surface": "#2e3132",
+                "secondary": "#566068",
+                "on-background": "#191c1d",
+                "inverse-primary": "#b5c4ff"
+              },
+              borderRadius: {
+                DEFAULT: "0.25rem",
+                lg: "0.5rem",
+                xl: "0.75rem",
+                full: "9999px"
+              },
+              fontFamily: {
+                headline: ["Inter", "sans-serif"],
+                display: ["Inter", "sans-serif"],
+                body: ["Inter", "sans-serif"],
+                label: ["Inter", "sans-serif"]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body overflow-hidden h-screen w-full relative select-none">
+<!-- Base Layer: ????? Background -->
+<div class="absolute inset-0 w-full h-full z-0">
+<img alt="Карта кампуса" class="w-full h-full object-cover opacity-90" data-alt="Минималистичная карта современного кампуса сверху: светло-серые дорожки, мягкие зелёные зоны и деликатное освещение." data-location="Схема университетского кампуса" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDz89gL7zJJ-c9npMxUnkC4_hMLhQdwwtDzBp1CPz7rSpLCu8PUIzHgM1NFkkdNoYdinPXotBFc_nIE205Y4yWpX90FPniLLvhxPUZS45J41MrlFznsuHXsctgPTHOvPQvqS9ReDI27C8MURVuA1TOwjwntlpkCBabWapm86wbPl9BnQWYDKDOomSChI_Bfhr-hv4-_dFQAlThlj3bcdh2J2aYqlEb22RGAQfZdkl_LEpIOtK6JW-Hq76GskNsv5KrP4J8tIJ7kU98"/>
+</div>
+<!-- ????p AppBar (Shared Component) -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl bg-slate-50/50 dark:bg-slate-900/50 shadow-[0_12px_32px_rgba(25,28,29,0.04)] transition-all duration-300 ease-in-out flex justify-between items-center px-6 h-16">
+<button class="hover:opacity-80 transition-opacity text-blue-700 dark:text-blue-400">
+<span class="material-symbols-outlined text-[24px]">account_balance</span>
+</button>
+<h1 class="font-['Inter'] font-semibold tracking-tight text-lg font-bold text-blue-900 dark:text-blue-50 tracking-[-0.02em]">UniMap AI</h1>
+<button class="hover:opacity-80 transition-opacity text-blue-700 dark:text-blue-400">
+<span class="material-symbols-outlined text-[24px]">search</span>
+</button>
+</header>
+<!-- Glassmorphism Canvas Layer (Overlay Controls) -->
+<div class="relative z-10 w-full h-full flex flex-col pointer-events-none pt-20 pb-24 px-4 sm:px-6">
+<!-- ????p Section: ????? Banner & Quick Filters -->
+<div class="pointer-events-auto flex flex-col items-start gap-4 mt-2">
+<!-- ????? Banner -->
+<div class="inline-flex items-center gap-2 bg-surface-container-lowest/85 backdrop-blur-xl px-4 py-2 rounded-full shadow-[0_12px_32px_rgba(25,28,29,0.06)]">
+<span class="material-symbols-outlined text-primary text-[18px]">person_outline</span>
+<span class="text-sm font-medium tracking-wide text-on-surface">Добро пожаловать, гость!</span>
+</div>
+<!-- Public Areas Filters (Horizontal Scroll/Wrap) -->
+<div class="flex flex-wrap gap-2">
+<!-- Active Filter (Admissions) -->
+<button class="bg-gradient-to-br from-primary to-primary-container text-on-primary px-5 py-2.5 rounded-full text-[13px] font-semibold tracking-wide shadow-[0_12px_32px_rgba(25,28,29,0.06)] transition-transform duration-300 active:scale-95 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">how_to_reg</span>
+                    Приёмная комиссия
+                </button>
+<!-- Inactive Filters -->
+<button class="bg-surface-container-lowest/90 backdrop-blur-md text-on-surface px-5 py-2.5 rounded-full text-[13px] font-medium shadow-[0_12px_32px_rgba(25,28,29,0.04)] hover:bg-surface-container-low transition-colors duration-300 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">local_library</span>
+                    Библиотека
+                </button>
+<button class="bg-surface-container-lowest/90 backdrop-blur-md text-on-surface px-5 py-2.5 rounded-full text-[13px] font-medium shadow-[0_12px_32px_rgba(25,28,29,0.04)] hover:bg-surface-container-low transition-colors duration-300 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">account_balance</span>
+                    Холл
+                </button>
+<button class="bg-surface-container-lowest/90 backdrop-blur-md text-on-surface px-5 py-2.5 rounded-full text-[13px] font-medium shadow-[0_12px_32px_rgba(25,28,29,0.04)] hover:bg-surface-container-low transition-colors duration-300 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">wc</span>
+                    Туалеты
+                </button>
+</div>
+</div>
+<!-- Spacer to push primary actions to the bottom -->
+<div class="flex-grow"></div>
+<!-- Bottom Section: Primary Actions (Asymmetrical layout, favoring right side) -->
+<div class="pointer-events-auto flex flex-col items-end gap-3 mb-6">
+<!-- Reception Button (Secondary Action) -->
+<button class="group flex items-center gap-4 bg-surface-container-lowest/95 backdrop-blur-2xl pr-6 pl-2 py-2 rounded-2xl shadow-[0_12px_32px_rgba(25,28,29,0.06)] transition-all duration-300 hover:shadow-[0_16px_40px_rgba(25,28,29,0.08)] active:scale-95">
+<div class="bg-secondary-container text-on-secondary-container w-10 h-10 rounded-xl flex items-center justify-center transition-colors group-hover:bg-secondary-fixed">
+<span class="material-symbols-outlined text-[20px]">desk</span>
+</div>
+<div class="flex flex-col items-start">
+<span class="text-[11px] font-semibold tracking-wider uppercase text-secondary">Найти</span>
+<span class="text-sm font-semibold text-on-surface leading-tight">Ресепшен</span>
+</div>
+</button>
+<!-- Find ????? Button (High Priority / Wayfinding Action) -->
+<button class="group flex items-center gap-4 bg-surface-container-lowest/95 backdrop-blur-2xl pr-6 pl-2 py-2 rounded-2xl shadow-[0_12px_32px_rgba(25,28,29,0.08)] transition-all duration-300 hover:shadow-[0_16px_40px_rgba(25,28,29,0.1)] active:scale-95">
+<div class="bg-tertiary-container text-on-tertiary-container w-10 h-10 rounded-xl flex items-center justify-center transition-colors group-hover:bg-tertiary">
+<span class="material-symbols-outlined text-[20px] fill text-on-tertiary-container group-hover:text-on-tertiary">meeting_room</span>
+</div>
+<div class="flex flex-col items-start">
+<span class="text-[11px] font-semibold tracking-wider uppercase text-tertiary">Ближайший</span>
+<span class="text-sm font-semibold text-on-surface leading-tight">Найти выход</span>
+</div>
+</button>
+</div>
+</div>
+<!-- BottomNavBar (Shared Component) -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-[2rem] bg-white/85 dark:bg-slate-900/85 backdrop-blur-2xl border-t border-white/10 dark:border-slate-800/20 shadow-[0_-8px_32px_rgba(0,0,0,0.06)] transition-transform duration-300 cubic-bezier(0.34,1.56,0.64,1) active:scale-90 fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-safe">
+<!-- Active Tab: ????? -->
+<button class="flex flex-col items-center justify-center text-blue-700 dark:text-blue-300 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-blue-700 after:rounded-full hover:text-blue-600 dark:hover:text-blue-300 transition-colors w-16 group">
+<span class="material-symbols-outlined text-[24px] mb-1 group-hover:-translate-y-0.5 transition-transform">map</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Карта</span>
+</button>
+<!-- Inactive Tabs -->
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors w-16 group">
+<span class="material-symbols-outlined text-[24px] mb-1 group-hover:-translate-y-0.5 transition-transform">search</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Поиск</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors w-16 group">
+<span class="material-symbols-outlined text-[24px] mb-1 group-hover:-translate-y-0.5 transition-transform">smart_toy</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">ИИ-чат</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors w-16 group">
+<span class="material-symbols-outlined text-[24px] mb-1 group-hover:-translate-y-0.5 transition-transform">calendar_today</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Расписание</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors w-16 group opacity-50 cursor-not-allowed" title="Недоступно в гостевом режиме">
+<span class="material-symbols-outlined text-[24px] mb-1">person</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Профиль</span>
+</button>
+</nav>
+</body></html>

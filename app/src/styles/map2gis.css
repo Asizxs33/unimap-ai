@@ -1,0 +1,215 @@
+/* ============================================================
+   Экран карты в паттерне 2ГИС/Яндекс.Карт: карта на весь экран,
+   поиск — плавающая строка сверху, результаты и карточки места —
+   в шторке снизу, которую тянут пальцем. Раньше здесь была
+   фиксированная боковая панель — она отъедала треть экрана даже
+   когда была не нужна, и на телефоне карту приходилось листать
+   в узкую полосу над панелью.
+   ============================================================ */
+
+.stage-2gis { height: 100%; }
+
+/* ── Плавающий поиск сверху ─────────────────────────────────── */
+.map-search-row {
+  top: var(--s4);
+  left: var(--s4);
+  right: var(--s4);
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+.map-search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  height: 54px;
+  padding: 0 var(--s4);
+  border-radius: var(--r-lg);
+  min-width: 0;
+  /* Плоский нейтральный фон вместо стеклянного блюра — спокойнее и
+     ближе к нативному iOS-полю поиска, чем яркое матовое стекло. */
+  background: var(--paper) !important;
+  border: 1px solid rgba(15, 23, 42, .07) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  transition: background .18s var(--ease), border-color .18s var(--ease), box-shadow .18s var(--ease);
+}
+.map-search .icon { color: var(--text-3); font-size: 21px; }
+.map-search.focused {
+  background: #fff !important;
+  border-color: var(--signal) !important;
+  box-shadow: 0 0 0 4px var(--signal-soft) !important;
+}
+.map-search.focused .icon:first-child { color: var(--signal); }
+.map-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  font-size: 14.5px;
+  font-weight: 550;
+  color: var(--text);
+}
+.map-search input::placeholder { color: var(--text-3); font-weight: 500; }
+.map-search-clear {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: var(--text-3);
+  flex: 0 0 auto;
+}
+.map-search-clear:hover { background: var(--paper-2); color: var(--text); }
+
+.floor-pill {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2px;
+  padding: 5px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+.floor-pill button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-2);
+}
+.floor-pill button.active { background: var(--ink); color: var(--sand); }
+
+.map-modes { top: 78px; left: var(--s4); }
+
+/* Колонка круглых кнопок справа опускаем ниже строки поиска и
+   переключателя режимов — на var(--s4) они делят один top и
+   визуально ложились друг на друга в правом верхнем углу. */
+.stage-2gis .controls { top: 138px; }
+
+/* ── Шторка снизу ────────────────────────────────────────────
+   position: absolute внутри .stage (не fixed) — так на мобильном,
+   где нижняя рельса навигации уходит под .stage, шторка прижимается
+   к границе карты и не перекрывает рельсу. */
+.sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  min-height: 64px;
+  max-height: 92vh;
+  background: var(--card-solid);
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 -8px 32px rgba(11, 18, 32, .16), 0 -1px 0 rgba(11, 18, 32, .04);
+  touch-action: none;
+  transition: border-radius .15s var(--ease);
+}
+.sheet-handle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 26px;
+  flex: 0 0 auto;
+  cursor: grab;
+  touch-action: none;
+}
+.sheet-handle:active { cursor: grabbing; }
+.sheet-handle-bar { width: 44px; height: 5px; border-radius: 999px; background: #d7dee8; }
+
+/* В шторке номер помещения — скруглённый квадрат вместо фирменного
+   скошенного угла: рядом с крупным заголовком скос читался как
+   дефект отрисовки, а не как приём. */
+.sheet .plate {
+  clip-path: none;
+  border-radius: 14px;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+.sheet-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 var(--s4) calc(var(--s6) + env(safe-area-inset-bottom));
+  overscroll-behavior: contain;
+}
+
+.sheet-list { display: grid; gap: var(--s1); padding-top: var(--s1); }
+.sheet-hint { padding: var(--s5) var(--s2); text-align: center; font-size: 13px; color: var(--text-3); }
+.sheet-section {
+  margin: var(--s4) 0 var(--s2);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.sheet-section:first-child { margin-top: var(--s2); }
+
+/* Заголовок раздела со ссылкой-действием справа */
+.sheet-section-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+.sheet-section-link {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--signal);
+  padding: var(--s1) 0;
+  transition: opacity .16s var(--ease);
+}
+.sheet-section-link:active { opacity: .55; }
+
+/* ── Карточка выбранного помещения в шторке ─────────────────── */
+.sheet-place { padding-top: var(--s2); }
+.sheet-place-head {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  gap: var(--s3);
+  align-items: center;
+}
+.sheet-place-title strong { display: block; font-size: 17px; font-weight: 650; }
+.sheet-place-title span { display: block; margin-top: 2px; font-size: 13px; color: var(--text-3); }
+.sheet-place-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s2); margin-top: var(--s4); }
+
+/* ── Сводка маршрута в шторке ────────────────────────────────── */
+.sheet-route { padding-top: var(--s1); }
+.sheet-route-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s3); }
+.sheet-route-from {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--signal);
+}
+.sheet-route-head strong { display: block; margin-top: 2px; font-size: 17px; font-weight: 650; }
+.sheet-route-figures {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s2);
+  margin: var(--s4) 0;
+  padding: var(--s3);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  text-align: center;
+}
+.sheet-route-figures strong { display: block; font-family: var(--font-mono); font-size: 19px; font-weight: 700; }
+.sheet-route-figures span { font-size: 10.5px; color: var(--text-3); }
+.sheet-route-start { width: 100%; margin-top: var(--s3); }
+
+/* Мобильная раскладка (поиск встык над рельсой, компактные бейджи
+   сверху) теперь целиком описана в theme.css рядом с остальными
+   мобильными правилами — там же живёт стыковка с .rail, чтобы не
+   держать две независимые системы позиционирования для одного и
+   того же экрана. */

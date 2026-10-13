@@ -1,0 +1,1627 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UniMap AI — 3D первый этаж · ЮКПУ им. Ө. Жәнібекова</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #003fb1;
+      --primary-strong: #1a56db;
+      --primary-soft: #dbe1ff;
+      --accent: #1aa57a;
+      --warn: #d58b00;
+      --fire: #c9232d;
+      --surface: #eef2f6;
+      --surface-low: #e5ebf2;
+      --surface-high: #ffffff;
+      --text: #0f1418;
+      --muted: #5a6470;
+      --shadow: 0 18px 48px rgba(15, 20, 24, .14);
+      --soft-shadow: 0 12px 32px rgba(15, 20, 24, .08);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: var(--surface);
+      color: var(--text);
+      overflow: hidden;
+    }
+    button, input { font: inherit; }
+    button { border: 0; cursor: pointer; }
+    .icon {
+      font-family: "Material Symbols Outlined";
+      font-size: 22px;
+      line-height: 1;
+      display: inline-flex;
+      font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
+    }
+    .app {
+      display: grid;
+      grid-template-columns: 340px minmax(0, 1fr);
+      height: 100vh;
+    }
+    .panel {
+      background: var(--surface-high);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      overflow: auto;
+      z-index: 5;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      width: 46px; height: 46px; border-radius: 14px; color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+      display: grid; place-items: center;
+      box-shadow: 0 14px 28px rgba(0,63,177,.25); flex: 0 0 auto;
+    }
+    .brand h1 { margin: 0; font-size: 16px; letter-spacing: -.01em; }
+    .brand small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      min-height: 28px; padding: 0 10px; border-radius: 999px;
+      color: var(--primary); background: var(--primary-soft);
+      font-size: 10.5px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .05em; width: fit-content;
+    }
+    .nav-card {
+      background: var(--surface); border-radius: 18px; padding: 14px; display: grid; gap: 10px;
+    }
+    .nav-card h2 { margin: 0 0 4px 0; font-size: 15px; }
+    .nav-row {
+      display: grid; grid-template-columns: 28px minmax(0,1fr); align-items: center;
+      gap: 10px; background: var(--surface-high); border-radius: 14px;
+      padding: 9px 12px; border: 1.5px solid transparent; transition: border-color .15s;
+    }
+    .nav-row.focused { border-color: var(--primary); }
+    .nav-row .dot { width: 16px; height: 16px; border-radius: 50%; justify-self: center; }
+    .nav-row .dot.from { background: #1aa57a; }
+    .nav-row .dot.to { background: var(--primary); box-shadow: 0 0 0 4px rgba(0,63,177,.14); }
+    .nav-row input {
+      width: 100%; border: 0; outline: 0; background: transparent;
+      font-size: 14px; font-weight: 600; color: var(--text); min-width: 0;
+    }
+    .nav-row input::placeholder { color: var(--muted); font-weight: 500; }
+    .nav-actions { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+    .btn {
+      min-height: 44px; border-radius: 14px; padding: 0 16px;
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 8px; font-weight: 800; font-size: 13px;
+      transition: transform .15s, box-shadow .15s, background .15s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+      color: white; box-shadow: 0 12px 24px rgba(0,63,177,.26);
+    }
+    .btn-primary:hover { transform: translateY(-1px); }
+    .btn-icon {
+      width: 44px; height: 44px; padding: 0;
+      background: var(--surface-high); color: var(--muted); box-shadow: var(--soft-shadow);
+    }
+    .btn-icon:hover { color: var(--primary); }
+    .quick-list { display: grid; gap: 6px; }
+    .quick-list h3 {
+      margin: 6px 0 2px 0; font-size: 11px; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+    .room-chip {
+      display: grid; grid-template-columns: 36px minmax(0,1fr) auto;
+      gap: 10px; align-items: center; padding: 9px 12px; border-radius: 14px;
+      background: var(--surface); cursor: pointer; transition: background .15s;
+      text-align: left; width: 100%; color: var(--text);
+    }
+    .room-chip:hover { background: var(--primary-soft); color: var(--primary); }
+    .room-chip .num {
+      width: 36px; height: 36px; border-radius: 12px; background: white;
+      box-shadow: var(--soft-shadow); display: grid; place-items: center;
+      font-weight: 900; color: var(--primary); font-size: 12px;
+    }
+    .room-chip strong { display: block; font-size: 13px; }
+    .room-chip span { font-size: 11px; color: var(--muted); display: block; }
+    .legend {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 5px; font-size: 11px; color: var(--muted);
+    }
+    .legend i {
+      width: 11px; height: 11px; border-radius: 3px;
+      display: inline-block; margin-right: 5px; vertical-align: middle;
+    }
+    .stage { position: relative; min-width: 0; }
+    canvas {
+      display: block; width: 100% !important; height: 100% !important; cursor: grab;
+    }
+    canvas:active { cursor: grabbing; }
+    .overlay { position: absolute; pointer-events: none; z-index: 4; }
+    .overlay > * { pointer-events: auto; }
+    .topbar {
+      top: 16px; left: 16px; right: 16px;
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+    }
+    .floor-card {
+      padding: 10px 14px; border-radius: 16px;
+      background: rgba(255,255,255,.94); backdrop-filter: blur(14px);
+      box-shadow: var(--soft-shadow); display: flex; align-items: center; gap: 10px;
+    }
+    .floor-card .num {
+      width: 36px; height: 36px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+      color: white; display: grid; place-items: center; font-weight: 900; font-size: 15px;
+    }
+    .floor-card strong { display: block; font-size: 13px; }
+    .floor-card span { display: block; font-size: 11px; color: var(--muted); }
+    .view-modes {
+      display: inline-flex; gap: 6px; padding: 6px; border-radius: 14px;
+      background: rgba(255,255,255,.94); backdrop-filter: blur(14px);
+      box-shadow: var(--soft-shadow);
+    }
+    .view-modes button {
+      min-width: 78px; height: 36px; border-radius: 10px;
+      background: transparent; color: var(--muted); font-weight: 700;
+      font-size: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 0 10px;
+    }
+    .view-modes button.active { background: var(--primary); color: white; }
+    .controls { bottom: 16px; right: 16px; display: grid; gap: 7px; }
+    .control-btn {
+      width: 44px; height: 44px; border-radius: 14px;
+      background: rgba(255,255,255,.94); backdrop-filter: blur(14px);
+      box-shadow: var(--soft-shadow); color: var(--text); display: grid; place-items: center;
+    }
+    .control-btn:hover { color: var(--primary); }
+    .step-card {
+      bottom: 16px; left: 16px; padding: 14px 16px; border-radius: 18px;
+      background: rgba(255,255,255,.95); backdrop-filter: blur(14px);
+      box-shadow: var(--shadow); display: none; align-items: center; gap: 14px; max-width: 440px;
+    }
+    .step-card.show { display: flex; }
+    .step-card .arrow {
+      width: 44px; height: 44px; border-radius: 14px;
+      background: var(--primary); color: white; display: grid; place-items: center; flex: 0 0 auto;
+    }
+    .step-card .arrow .icon { font-size: 24px; }
+    .step-card .info { min-width: 0; flex: 1; }
+    .step-card .info strong { display: block; font-size: 14px; }
+    .step-card .info span { display: block; font-size: 12px; color: var(--muted); }
+    .step-card .nav-step { display: inline-flex; gap: 4px; }
+    .step-mini-btn {
+      width: 34px; height: 34px; border-radius: 12px;
+      background: var(--surface); color: var(--text); display: grid; place-items: center;
+    }
+    .step-mini-btn:hover { background: var(--primary-soft); color: var(--primary); }
+    .toast {
+      position: absolute; top: 74px; left: 50%; transform: translateX(-50%) translateY(-12px);
+      padding: 9px 16px; border-radius: 999px; background: var(--text); color: white;
+      font-size: 13px; font-weight: 700; opacity: 0; pointer-events: none;
+      transition: opacity .25s, transform .25s; z-index: 10; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    @media (max-width: 920px) {
+      .app { grid-template-columns: 1fr; grid-template-rows: 1fr 300px; }
+      .panel { order: 2; max-height: 300px; }
+      .stage { order: 1; }
+      .controls { right: 10px; bottom: 10px; }
+      .step-card { left: 10px; right: 10px; bottom: 10px; max-width: none; }
+    }
+    .panel::-webkit-scrollbar { width: 5px; }
+    .panel::-webkit-scrollbar-thumb { background: #cdd4dd; border-radius: 999px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="panel">
+      <div class="brand">
+        <div class="brand-mark"><span class="icon">account_balance</span></div>
+        <div>
+          <h1>UniMap AI</h1>
+          <small>ОҚМПУ им. Ө. Жәнібекова · 1 қабат</small>
+        </div>
+      </div>
+
+      <div class="eyebrow"><span class="icon" style="font-size:14px">explore</span> 3D навигатор · 1-ші қабат</div>
+
+      <div class="nav-card">
+        <h2>Куда идём?</h2>
+        <div class="nav-row" id="row-from">
+          <span class="dot from"></span>
+          <input id="from-input" placeholder="Откуда (напр.: Главный вход)" autocomplete="off">
+        </div>
+        <div class="nav-row focused" id="row-to">
+          <span class="dot to"></span>
+          <input id="to-input" placeholder="Куда (напр.: 105 — деканат)" autocomplete="off">
+        </div>
+        <div class="nav-actions">
+          <button class="btn btn-primary" id="btn-route">
+            <span class="icon">navigation</span> Построить маршрут
+          </button>
+          <button class="btn btn-icon" id="btn-swap" title="Поменять местами">
+            <span class="icon">swap_vert</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="quick-list">
+        <h3>Быстрые места</h3>
+        <button class="room-chip" data-room="entrance">
+          <div class="num"><span class="icon" style="font-size:16px">door_front</span></div>
+          <div><strong>Главный вход</strong><span>Южный фасад · турникеты</span></div>
+          <span class="icon" style="color:var(--muted)">chevron_right</span>
+        </button>
+        <button class="room-chip" data-room="r101">
+          <div class="num">101</div>
+          <div><strong>Пожарный пост</strong><span>Левое крыло · север</span></div>
+          <span class="icon" style="color:var(--muted)">chevron_right</span>
+        </button>
+        <button class="room-chip" data-room="r105">
+          <div class="num">105</div>
+          <div><strong>Деканат</strong><span>Левое крыло · юг</span></div>
+          <span class="icon" style="color:var(--muted)">chevron_right</span>
+        </button>
+        <button class="room-chip" data-room="r110">
+          <div class="num">110</div>
+          <div><strong>Аудитория 110</strong><span>Левое крыло · 60 мест</span></div>
+          <span class="icon" style="color:var(--muted)">chevron_right</span>
+        </button>
+        <button class="room-chip" data-room="r120">
+          <div class="num">120</div>
+          <div><strong>Аудитория 120</strong><span>Правое крыло</span></div>
+          <span class="icon" style="color:var(--muted)">chevron_right</span>
+        </button>
+        <button class="room-chip" data-room="med">
+          <div class="num"><span class="icon" style="font-size:16px;color:#17824d">medical_services</span></div>
+          <div><strong>Медпункт</strong><span>Первая помощь</span></div>
+          <span class="icon" style="color:var(--muted)">chevron_right</span>
+        </button>
+        <button class="room-chip" data-room="stairsL">
+          <div class="num"><span class="icon" style="font-size:16px">stairs</span></div>
+          <div><strong>Лестница (лево)</strong><span>Левое крыло · север</span></div>
+          <span class="icon" style="color:var(--muted)">chevron_right</span>
+        </button>
+        <button class="room-chip" data-room="stairsR">
+          <div class="num"><span class="icon" style="font-size:16px">stairs</span></div>
+          <div><strong>Лестница (право)</strong><span>Правое крыло · север</span></div>
+          <span class="icon" style="color:var(--muted)">chevron_right</span>
+        </button>
+        <button class="room-chip" data-room="exitL">
+          <div class="num"><span class="icon" style="font-size:16px;color:var(--accent)">logout</span></div>
+          <div><strong>Выход (север-лево)</strong><span>Торец левого крыла</span></div>
+          <span class="icon" style="color:var(--muted)">chevron_right</span>
+        </button>
+        <button class="room-chip" data-room="exitR">
+          <div class="num"><span class="icon" style="font-size:16px;color:var(--accent)">logout</span></div>
+          <div><strong>Выход (север-право)</strong><span>Торец правого крыла</span></div>
+          <span class="icon" style="color:var(--muted)">chevron_right</span>
+        </button>
+      </div>
+
+      <div class="quick-list">
+        <h3>Условные обозначения</h3>
+        <div class="legend">
+          <div><i style="background:#dbe1ff"></i>Учебные</div>
+          <div><i style="background:#ffe8a3"></i>Адм./деканат</div>
+          <div><i style="background:#cdebd9"></i>Сервис</div>
+          <div><i style="background:#f5c4c8"></i>Тех. помещения</div>
+          <div><i style="background:#1aa57a"></i>Эвак. выход</div>
+          <div><i style="background:#003fb1"></i>Маршрут</div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="stage">
+      <canvas id="three"></canvas>
+
+      <div class="overlay topbar">
+        <div class="floor-card">
+          <div class="num">1</div>
+          <div>
+            <strong>Первый этаж · 1 қабат</strong>
+            <span>Эвакуациялық жоспар</span>
+          </div>
+        </div>
+        <div class="view-modes">
+          <button data-mode="ext" class="active"><span class="icon" style="font-size:16px">apartment</span> Здание</button>
+          <button data-mode="iso"><span class="icon" style="font-size:16px">view_in_ar</span> План</button>
+          <button data-mode="top"><span class="icon" style="font-size:16px">map</span> Сверху</button>
+          <button data-mode="walk"><span class="icon" style="font-size:16px">directions_walk</span> Ходьба</button>
+        </div>
+      </div>
+
+      <div class="overlay controls">
+        <button class="control-btn" id="btn-zoom-in" title="Приблизить"><span class="icon">add</span></button>
+        <button class="control-btn" id="btn-zoom-out" title="Отдалить"><span class="icon">remove</span></button>
+        <button class="control-btn" id="btn-reset" title="Сбросить вид"><span class="icon">center_focus_strong</span></button>
+        <button class="control-btn" id="btn-roof" title="Скрыть/показать крышу"><span class="icon">layers</span></button>
+      </div>
+
+      <div class="overlay step-card" id="step-card">
+        <div class="arrow"><span class="icon" id="step-icon">straight</span></div>
+        <div class="info">
+          <strong id="step-text">—</strong>
+          <span id="step-meta">—</span>
+        </div>
+        <div class="nav-step">
+          <button class="step-mini-btn" id="step-prev"><span class="icon">arrow_back</span></button>
+          <button class="step-mini-btn" id="step-next"><span class="icon">arrow_forward</span></button>
+          <button class="step-mini-btn" id="step-close"><span class="icon">close</span></button>
+        </div>
+      </div>
+
+      <div class="toast" id="toast">—</div>
+    </div>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    /* ============================================================
+       ПЛАН ЗДАНИЯ — точно по эвакуационной схеме (фото)
+       П-образный корпус (два крыла на широком нижнем блоке):
+         - ЛЕВОЕ крыло (LW): длинное вертикальное, скошенный
+           северо-западный угол, выход на север
+         - ПРАВОЕ крыло (RW): короче, выход на север
+         - НИЖНИЙ блок (BS): широкий горизонтальный, главный
+           вход/выход ШЫҒУ по центру юга, лестница на востоке
+         - Перемычки между крыльями сверху НЕТ
+       ============================================================ */
+
+    /* ─── Навигационный граф ─── */
+    const NODES = {
+      // Главные входы/выходы
+      'entrance':  { x: -8,  z: 34,  label: 'Главный вход' },
+      'exitL':     { x: -47, z: -55, label: 'Выход (север-лево)' },
+      'exitR':     { x: 17,  z: -45, label: 'Выход (север-право)' },
+      'exitBS':    { x: -8,  z: 41,  label: 'Выход (юг)' },
+      'exitBSR':   { x: 57,  z: 26,  label: 'Выход (восток)' },
+
+      // Лестницы
+      'stairsL':   { x: -53, z: -46, label: 'Лестница (лево)' },
+      'stairsR':   { x: 11,  z: -36, label: 'Лестница (право)' },
+      'stairsE':   { x: 50,  z: 31,  label: 'Лестница (восток)' },
+
+      // Коридор левого крыла (вертикальный, x≈-47)
+      'corrL_1':   { x: -47, z: -46, label: 'Коридор лево N' },
+      'corrL_2':   { x: -47, z: -34, label: 'Коридор лево N2' },
+      'corrL_3':   { x: -47, z: -22, label: 'Коридор лево центр' },
+      'corrL_4':   { x: -47, z: -10, label: 'Коридор лево S1' },
+      'corrL_5':   { x: -47, z:   2, label: 'Коридор лево S2' },
+      'corrL_6':   { x: -47, z:  14, label: 'Коридор лево юг' },
+
+      // Коридор правого крыла (вертикальный, x≈17)
+      'corrR_1':   { x: 17,  z: -36, label: 'Коридор право N' },
+      'corrR_2':   { x: 17,  z: -24, label: 'Коридор право N2' },
+      'corrR_3':   { x: 17,  z: -12, label: 'Коридор право центр' },
+      'corrR_4':   { x: 17,  z:   0, label: 'Коридор право S' },
+      'corrR_5':   { x: 17,  z:  12, label: 'Коридор право юг' },
+
+      // Нижний блок (горизонтальный коридор, z≈26)
+      'corrB_1':   { x: -47, z: 26,  label: 'Нижний коридор запад' },
+      'corrB_2':   { x: -28, z: 26,  label: 'Нижний коридор лево' },
+      'corrB_3':   { x: -8,  z: 26,  label: 'Нижний коридор центр' },
+      'corrB_4':   { x: 17,  z: 26,  label: 'Нижний коридор право' },
+      'corrB_5':   { x: 38,  z: 26,  label: 'Нижний коридор восток' },
+      'corrB_6':   { x: 52,  z: 26,  label: 'Нижний коридор край' },
+
+      // Комнаты левого крыла — западная сторона
+      'r101':      { x: -53, z: -34, label: 'Каб. 101 (Пост)' },
+      'r102':      { x: -53, z: -22, label: 'Каб. 102 (Гардероб)' },
+      'r110':      { x: -53, z: -10, label: 'Ауд. 110' },
+      'r107':      { x: -53, z:   2, label: 'Ауд. 107' },
+      'r108':      { x: -53, z:  12, label: 'WC' },
+      // Комнаты левого крыла — восточная сторона
+      'r103':      { x: -41, z: -34, label: 'Ауд. 103' },
+      'r104':      { x: -41, z: -22, label: 'Ауд. 104' },
+      'med':       { x: -41, z: -10, label: 'Медпункт' },
+      'r105':      { x: -41, z:   2, label: 'Деканат 105' },
+      'r106':      { x: -41, z:  12, label: 'Ауд. 106' },
+
+      // Комнаты правого крыла
+      'r121':      { x: 11,  z: -24, label: 'Ауд. 121' },
+      'r123':      { x: 11,  z: -12, label: 'Ауд. 123' },
+      'r125':      { x: 11,  z:   0, label: 'Ауд. 125' },
+      'r120':      { x: 23,  z: -24, label: 'Ауд. 120' },
+      'r122':      { x: 23,  z: -12, label: 'Ауд. 122' },
+      'r124':      { x: 23,  z:   0, label: 'Ауд. 124' },
+      'r126':      { x: 23,  z:  12, label: 'Ауд. 126' },
+
+      // Нижний блок — комнаты (южная сторона)
+      'r130':      { x: -34, z: 35,  label: 'Ауд. 130' },
+      'r131':      { x: -18, z: 35,  label: 'Ауд. 131' },
+      'r132':      { x: 14,  z: 35,  label: 'Конференц-зал' },
+      'r133':      { x: 32,  z: 35,  label: 'Кафедра' },
+      'r134':      { x: 46,  z: 35,  label: 'Ауд. 134' },
+    };
+
+    const EDGES = [
+      // Главный вход (юг, центр нижнего блока)
+      ['entrance', 'corrB_3'], ['entrance', 'exitBS'],
+
+      // Нижний коридор (горизонталь)
+      ['corrB_1', 'corrB_2'], ['corrB_2', 'corrB_3'],
+      ['corrB_3', 'corrB_4'], ['corrB_4', 'corrB_5'],
+      ['corrB_5', 'corrB_6'],
+      ['corrB_6', 'exitBSR'], ['corrB_6', 'stairsE'],
+
+      // Левое крыло коридор (вертикаль) + стыковка с нижним блоком
+      ['corrL_1', 'corrL_2'], ['corrL_2', 'corrL_3'],
+      ['corrL_3', 'corrL_4'], ['corrL_4', 'corrL_5'],
+      ['corrL_5', 'corrL_6'], ['corrL_6', 'corrB_1'],
+      ['corrL_1', 'stairsL'], ['corrL_1', 'exitL'],
+
+      // Правое крыло коридор + стыковка
+      ['corrR_1', 'corrR_2'], ['corrR_2', 'corrR_3'],
+      ['corrR_3', 'corrR_4'], ['corrR_4', 'corrR_5'],
+      ['corrR_5', 'corrB_4'],
+      ['corrR_1', 'stairsR'], ['corrR_1', 'exitR'],
+
+      // Двери комнат — левое крыло
+      ['corrL_2', 'r101'], ['corrL_2', 'r103'],
+      ['corrL_3', 'r102'], ['corrL_3', 'r104'],
+      ['corrL_4', 'r110'], ['corrL_4', 'med'],
+      ['corrL_5', 'r107'], ['corrL_5', 'r105'],
+      ['corrL_6', 'r108'], ['corrL_6', 'r106'],
+
+      // Двери комнат — правое крыло
+      ['corrR_2', 'r121'], ['corrR_2', 'r120'],
+      ['corrR_3', 'r123'], ['corrR_3', 'r122'],
+      ['corrR_4', 'r125'], ['corrR_4', 'r124'],
+      ['corrR_5', 'r126'],
+
+      // Двери — нижний блок
+      ['corrB_2', 'r130'], ['corrB_3', 'r131'],
+      ['corrB_4', 'r132'], ['corrB_5', 'r133'],
+      ['corrB_5', 'r134'],
+    ];
+
+    const ALIASES = {
+      'главный вход':'entrance','вход':'entrance','entrance':'entrance',
+      '101':'r101','пост':'r101','охрана':'r101','пожарный пост':'r101',
+      'гардероб':'r102','102':'r102',
+      '103':'r103','104':'r104','105':'r105','деканат':'r105',
+      '106':'r106','107':'r107','108':'r108','wc':'r108','туалет':'r108',
+      '110':'r110','120':'r120','121':'r121','122':'r122',
+      '123':'r123','124':'r124','125':'r125',
+      '126':'r126',
+      '130':'r130','131':'r131','132':'r132','зал':'r132','конференц':'r132',
+      '133':'r133','кафедра':'r133','134':'r134',
+      'медпункт':'med','мед':'med','медицина':'med','аптека':'med',
+      'лестница':'stairsL','лестница лево':'stairsL','лестница право':'stairsR',
+      'выход':'exitBS','выход юг':'exitBS','выход север':'exitR',
+      'выход лево':'exitL','выход восток':'exitBSR',
+    };
+
+    /* ============================================================
+       THREE.JS СЦЕНА
+       ============================================================ */
+    const canvas = document.getElementById('three');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xdde6f0);
+    scene.fog = new THREE.Fog(0xdde6f0, 320, 620);
+
+    const camera = new THREE.PerspectiveCamera(44, 1, 0.1, 900);
+    camera.position.set(120, 92, 150);
+
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.07;
+    controls.target.set(0, 0, -4);
+    controls.minDistance = 8;
+    controls.maxDistance = 330;
+    controls.maxPolarAngle = Math.PI / 2.05;
+
+    /* ─── Освещение ─── */
+    scene.add(new THREE.AmbientLight(0xd0e4f8, 0.7));
+
+    const sun = new THREE.DirectionalLight(0xfff8e8, 2.2);
+    sun.position.set(70, 130, 90);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.camera.left = -150; sun.shadow.camera.right = 150;
+    sun.shadow.camera.top = 150;  sun.shadow.camera.bottom = -150;
+    sun.shadow.bias = -0.001;
+    scene.add(sun);
+
+    const fill = new THREE.DirectionalLight(0x8ab8e8, 0.5);
+    fill.position.set(-40, 30, -30);
+    scene.add(fill);
+
+    scene.add(new THREE.HemisphereLight(0xb8d4f0, 0xc4b898, 0.45));
+
+    /* ─── Земля ─── */
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(900, 900),
+      new THREE.MeshLambertMaterial({ color: 0xc8d4b8 })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -0.08;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    // Тротуар/площадь
+    const plazaMat = new THREE.MeshStandardMaterial({ color: 0xbbc8d4, roughness: 0.9 });
+    const plaza = new THREE.Mesh(new THREE.PlaneGeometry(320, 300), plazaMat);
+    plaza.rotation.x = -Math.PI / 2; plaza.receiveShadow = true;
+    scene.add(plaza);
+
+    /* ─── Материалы ─── */
+    const MAT = {
+      floor:      new THREE.MeshStandardMaterial({ color: 0xe8ecf2, roughness: 0.88 }),
+      corridor:   new THREE.MeshStandardMaterial({ color: 0xd8e0ea, roughness: 0.9 }),
+      classRoom:  new THREE.MeshStandardMaterial({ color: 0xdde6ff, roughness: 0.84 }),
+      adminRoom:  new THREE.MeshStandardMaterial({ color: 0xfde9a8, roughness: 0.84 }),
+      serviceRoom:new THREE.MeshStandardMaterial({ color: 0xc8e8d4, roughness: 0.84 }),
+      techRoom:   new THREE.MeshStandardMaterial({ color: 0xf4c8cc, roughness: 0.84 }),
+      lobbyRoom:  new THREE.MeshStandardMaterial({ color: 0xf4f0e2, roughness: 0.86 }),
+      outerWall:  new THREE.MeshStandardMaterial({ color: 0x1a2c42, roughness: 0.72 }),
+      innerWall:  new THREE.MeshStandardMaterial({ color: 0x26384e, roughness: 0.78 }),
+      glass:      new THREE.MeshPhysicalMaterial({ color: 0x6aaee8, roughness: 0.12, metalness: 0.05, transmission: 0.3, transparent: true, opacity: 0.52 }),
+      roof:       new THREE.MeshStandardMaterial({ color: 0x1e3458, roughness: 0.74, transparent: true, opacity: 0.82 }),
+      exit:       new THREE.MeshStandardMaterial({ color: 0x0f7040, roughness: 0.65, emissive: 0x06301a, emissiveIntensity: 0.18 }),
+      fire:       new THREE.MeshStandardMaterial({ color: 0xb81430, roughness: 0.62, emissive: 0x4a0510, emissiveIntensity: 0.25 }),
+      electric:   new THREE.MeshStandardMaterial({ color: 0xd49510, roughness: 0.6, emissive: 0x5a3800, emissiveIntensity: 0.2 }),
+      stairs:     new THREE.MeshStandardMaterial({ color: 0x8a96a8, roughness: 0.8 }),
+      route:      new THREE.MeshStandardMaterial({ color: 0x1050cc, emissive: 0x2266ff, emissiveIntensity: 0.35, roughness: 0.45 }),
+    };
+
+    /* ─── Вспомогательные функции ─── */
+    function makeLabelTexture(text, sub = '', bg = '#ffffff', fg = '#0f1418') {
+      const c = document.createElement('canvas');
+      c.width = 256; c.height = 256;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, 256, 256);
+      ctx.fillStyle = fg; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = `900 ${sub ? 100 : 112}px Inter, sans-serif`;
+      ctx.fillText(text || '', 128, sub ? 105 : 128);
+      if (sub) {
+        ctx.font = '700 34px Inter, sans-serif';
+        ctx.fillStyle = '#5a6470';
+        ctx.fillText(sub, 128, 196);
+      }
+      const tex = new THREE.CanvasTexture(c);
+      tex.anisotropy = 4;
+      return tex;
+    }
+
+    const buildingGroup = new THREE.Group();
+    scene.add(buildingGroup);
+
+    const modelGroup = new THREE.Group();
+    modelGroup.position.y = 0.2;
+    buildingGroup.add(modelGroup);
+
+    const roofGroup = new THREE.Group();
+    roofGroup.visible = false;
+    buildingGroup.add(roofGroup);
+
+    function addBox(grp, x, z, w, d, h, mat, yBase = 0, name = '') {
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+      mesh.position.set(x, yBase + h / 2, z);
+      mesh.castShadow = true; mesh.receiveShadow = true;
+      if (name) mesh.name = name;
+      grp.add(mesh);
+      return mesh;
+    }
+
+    function addSlab(x, z, w, d, mat) {
+      const base = addBox(modelGroup, x, z, w, d, 0.28, MAT.floor);
+      addBox(modelGroup, x, z, w - 0.8, d - 0.8, 0.1, mat, 0.28);
+      return base;
+    }
+
+    function addWall(x, z, w, d, external = false) {
+      const h = external ? 3.4 : 1.3;
+      return addBox(modelGroup, x, z, w, d, h, external ? MAT.outerWall : MAT.innerWall, 0.38);
+    }
+
+    function addRoomTile(label, sub, x, z, w, d, mat) {
+      addBox(modelGroup, x, z, w, d, 0.14, mat, 0.44);
+      const tex = makeLabelTexture(label, sub, '#ffffffcc', '#1a2c42');
+      const plane = new THREE.Mesh(
+        new THREE.PlaneGeometry(Math.min(w - 1.2, 5.4), 2.0),
+        new THREE.MeshBasicMaterial({ map: tex, transparent: true })
+      );
+      plane.rotation.x = -Math.PI / 2;
+      plane.position.set(x, 0.7, z);
+      modelGroup.add(plane);
+    }
+
+    function addWindow(x, z, w, angle = 0) {
+      const win = addBox(modelGroup, x, z, w, 0.1, 0.7, MAT.glass, 2.1);
+      if (angle) win.rotation.y = angle;
+      return win;
+    }
+
+    function addStairBlock(x, z, angle = 0) {
+      const grp = new THREE.Group();
+      for (let i = 0; i < 7; i++) {
+        const step = new THREE.Mesh(
+          new THREE.BoxGeometry(5.2, 0.14, 0.54), MAT.stairs
+        );
+        step.position.set(0, 0.56 + i * 0.1, -1.8 + i * 0.54);
+        step.castShadow = true;
+        grp.add(step);
+      }
+      // Перила
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.0, 3.8), new THREE.MeshStandardMaterial({ color: 0x5a6a7e, metalness: 0.6, roughness: 0.3 }));
+      rail.position.set(2.4, 1.1, 0);
+      grp.add(rail);
+      const rail2 = rail.clone(); rail2.position.x = -2.4; grp.add(rail2);
+      grp.position.set(x, 0, z);
+      grp.rotation.y = angle;
+      modelGroup.add(grp);
+    }
+
+    function addExitSign(x, z, angle = 0) {
+      const sign = addBox(modelGroup, x, z, 4.6, 0.24, 0.9, MAT.exit, 1.5);
+      sign.rotation.y = angle;
+      const tex = makeLabelTexture('ШЫҒУ', 'ВЫХОД', '#0f7040', '#ffffff');
+      const face = new THREE.Mesh(
+        new THREE.PlaneGeometry(4.0, 1.4),
+        new THREE.MeshBasicMaterial({ map: tex, transparent: true })
+      );
+      face.rotation.x = -Math.PI / 2;
+      face.position.set(x, 2.52, z);
+      modelGroup.add(face);
+
+      // Подсветка выхода
+      const light = new THREE.PointLight(0x00ff88, 1.4, 8);
+      light.position.set(x, 2.5, z);
+      modelGroup.add(light);
+    }
+
+    function addFireExt(x, z) {
+      // Корпус
+      const body = addBox(modelGroup, x, z, 0.4, 0.4, 1.0, MAT.fire, 0.38);
+      // Верхняя часть
+      addBox(modelGroup, x, z, 0.35, 0.35, 0.18, new THREE.MeshStandardMaterial({ color: 0x8a1020, metalness: 0.6 }), 1.38);
+      // Шланг
+      const nozzle = addBox(modelGroup, x + 0.28, z, 0.38, 0.08, 0.08, new THREE.MeshStandardMaterial({ color: 0x2a3240, metalness: 0.8 }), 1.5);
+      const light = new THREE.PointLight(0xff2200, 0.8, 4);
+      light.position.set(x, 1.2, z);
+      modelGroup.add(light);
+    }
+
+    function addElecPanel(x, z) {
+      addBox(modelGroup, x, z, 0.9, 0.14, 1.0, MAT.electric, 0.9);
+      // Предупреждающий треугольник
+      const triGeo = new THREE.ConeGeometry(0.3, 0.5, 3);
+      const triMat = new THREE.MeshStandardMaterial({ color: 0xffcc00, emissive: 0x553300, emissiveIntensity: 0.6 });
+      const tri = new THREE.Mesh(triGeo, triMat);
+      tri.position.set(x, 2.2, z);
+      tri.castShadow = true;
+      modelGroup.add(tri);
+      const light = new THREE.PointLight(0xffaa00, 1.0, 5);
+      light.position.set(x, 2.0, z);
+      modelGroup.add(light);
+    }
+
+    function addEvacArrow(x, z, angle = 0) {
+      const arrowMat = new THREE.MeshStandardMaterial({ color: 0x0a9450, roughness: 0.55, emissive: 0x054820, emissiveIntensity: 0.3 });
+      const grp = new THREE.Group();
+      const shaft = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.06, 4.6), arrowMat);
+      shaft.position.z = -0.1;
+      const head = new THREE.Mesh(new THREE.ConeGeometry(0.78, 1.7, 3), arrowMat);
+      head.rotation.x = Math.PI / 2;
+      head.position.z = -2.9;
+      grp.add(shaft, head);
+      grp.position.set(x, 0.42, z);
+      grp.rotation.y = angle;
+      modelGroup.add(grp);
+    }
+
+    function addMedStation(x, z) {
+      const matBox = new THREE.MeshStandardMaterial({ color: 0x1466c8, roughness: 0.4, metalness: 0.2, emissive: 0x082860, emissiveIntensity: 0.2 });
+      addBox(modelGroup, x, z, 0.8, 0.8, 0.6, matBox, 1.2);
+      // Крест
+      const crossMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.4 });
+      addBox(modelGroup, x, z, 0.55, 0.15, 0.1, crossMat, 1.7);
+      addBox(modelGroup, x, z, 0.15, 0.55, 0.1, crossMat, 1.7);
+      const light = new THREE.PointLight(0x3388ff, 1.0, 5);
+      light.position.set(x, 2.0, z);
+      modelGroup.add(light);
+    }
+
+    /* ============================================================
+       СТРОИМ ЗДАНИЕ — П-образный план (по фото эвакуационной схемы)
+       ============================================================ */
+
+    // ── ЛЕВОЕ КРЫЛО (длинное, запад) ─────────────────────────────
+    // Размеры: 22 × 72, центр (-47, 0, -16)
+    addSlab(-47, -16, 22, 72, MAT.corridor);
+
+    // Внешние стены левого крыла
+    addWall(-47, -51.2, 22, 1.0, true);   // север
+    addWall(-57.2, -16, 1.0, 72, true);   // запад
+    addWall(-36.8, -16, 1.0, 72, true);   // восток
+
+    // Скошенный северо-западный угол (как на схеме)
+    const chamfer = addWall(-53.5, -48.5, 10, 1.0, true);
+    chamfer.rotation.y = -Math.PI / 5;
+
+    // Горизонтальные перегородки между комнатами (обе стороны коридора)
+    [-40, -28, -16, -4, 8].forEach(z => {
+      addWall(-54.5, z, 5.5, 0.5);  // западная сторона
+      addWall(-39.7, z, 5.5, 0.5);  // восточная сторона
+    });
+
+    // Стены коридора (x=-51.5 и x=-42.5) с проёмами у дверей
+    [[-43.5, 13], [-28, 6], [-16, 6], [-4, 6], [7, 4], [17, 4]].forEach(([z, len]) => {
+      addWall(-51.5, z, 0.5, len);
+      addWall(-42.5, z, 0.5, len);
+    });
+
+    // Комнаты левого крыла — ЗАПАДНАЯ сторона
+    addRoomTile('101', 'Пост',   -53, -34, 7, 10, MAT.serviceRoom);
+    addRoomTile('102', 'Гардер', -53, -22, 7, 10, MAT.serviceRoom);
+    addRoomTile('110', '',       -53, -10, 7, 10, MAT.classRoom);
+    addRoomTile('107', '',       -53,   2, 7, 10, MAT.classRoom);
+    addRoomTile('108', 'WC',     -53,  12, 7,  8, MAT.techRoom);
+
+    // Комнаты левого крыла — ВОСТОЧНАЯ сторона
+    addRoomTile('103', '',        -41, -34, 7, 10, MAT.classRoom);
+    addRoomTile('104', '',        -41, -22, 7, 10, MAT.classRoom);
+    addRoomTile('Мед', '',        -41, -10, 7, 10, MAT.serviceRoom);
+    addRoomTile('105', 'Деканат', -41,   2, 7, 10, MAT.adminRoom);
+    addRoomTile('106', '',        -41,  12, 7,  8, MAT.classRoom);
+
+    // Окна левого крыла
+    addWindow(-47, -51.3, 16, 0);
+    addWindow(-57.3, -22, 50, Math.PI / 2);
+    addWindow(-36.9, -28, 38, Math.PI / 2);
+
+    // Лестница левого крыла (северный торец)
+    addStairBlock(-53, -46, Math.PI / 2);
+
+    // ── ПРАВОЕ КРЫЛО (короче, восток) ────────────────────────────
+    // Размеры: 22 × 62, центр (17, 0, -11)
+    addSlab(17, -11, 22, 62, MAT.corridor);
+
+    addWall(17, -41.2, 22, 1.0, true);   // север
+    addWall( 6.8, -11, 1.0, 62, true);   // запад
+    addWall(27.2, -11, 1.0, 62, true);   // восток
+
+    // Горизонтальные перегородки
+    [-30, -18, -6, 6].forEach(z => {
+      addWall( 9.5, z, 5.5, 0.5);   // западная сторона
+      addWall(24.5, z, 5.5, 0.5);   // восточная сторона
+    });
+
+    // Стены коридора (x=12.5 и x=21.5) с проёмами
+    [[-33, 12], [-18, 6], [-6, 6], [6, 6], [16, 4]].forEach(([z, len]) => {
+      addWall(12.5, z, 0.5, len);
+      addWall(21.5, z, 0.5, len);
+    });
+
+    // Комнаты правого крыла
+    addRoomTile('121', '', 11, -24, 7, 10, MAT.classRoom);
+    addRoomTile('123', '', 11, -12, 7, 10, MAT.adminRoom);
+    addRoomTile('125', '', 11,   0, 7, 10, MAT.classRoom);
+    addRoomTile('120', '', 23, -24, 7, 10, MAT.classRoom);
+    addRoomTile('122', '', 23, -12, 7, 10, MAT.classRoom);
+    addRoomTile('124', '', 23,   0, 7, 10, MAT.classRoom);
+    addRoomTile('126', '', 23,  12, 7,  8, MAT.classRoom);
+
+    // Окна правого крыла
+    addWindow(17, -41.3, 16, 0);
+    addWindow(27.3, -14, 50, Math.PI / 2);
+    addWindow( 6.7, -20, 36, Math.PI / 2);
+
+    // Лестница правого крыла (северный торец)
+    addStairBlock(11, -36, Math.PI / 2);
+
+    // ── НИЖНИЙ БЛОК (широкий, юг) ────────────────────────────────
+    // Размеры: 116 × 20, центр (0, 0, 30)
+    addSlab(0, 30, 116, 20, MAT.corridor);
+
+    addWall(0, 39.8, 116, 1.0, true);     // юг
+    addWall(-57.2, 30, 1.0, 20, true);    // запад (продолжение стены крыла)
+    addWall( 57.2, 30, 1.0, 20, true);    // восток
+    // Северная стена — сегменты между крыльями и восточнее правого крыла
+    // (с запасом по длине, чтобы стыки со стенами крыльев были без щелей)
+    addWall(-15, 20.2, 45.6, 1.0, true);  // двор (между крыльями)
+    addWall(42.2, 20.2, 31.5, 1.0, true); // восточный сегмент
+
+    // Стена комнат южной стороны (z=30.5) с проёмами у дверей
+    [[-44, 8], [-26, 8], [-4, 12], [24, 8], [40, 4], [52, 6]].forEach(([x, len]) => {
+      addWall(x, 30.5, len, 0.5);
+    });
+
+    // Вертикальные перегородки между комнатами нижнего блока
+    [-42, -26, -10, 4, 24, 40].forEach(x => addWall(x, 35.5, 0.5, 9));
+
+    // Комнаты нижнего блока
+    addRoomTile('130', '',    -34, 35, 14, 8, MAT.classRoom);
+    addRoomTile('131', '',    -18, 35, 12, 8, MAT.classRoom);
+    addRoomTile('132', 'Зал',  14, 35, 16, 8, MAT.adminRoom);
+    addRoomTile('133', 'Каф',  32, 35, 12, 8, MAT.adminRoom);
+    addRoomTile('134', '',     46, 35, 10, 8, MAT.classRoom);
+
+    // Холл главного входа
+    addRoomTile('Холл', '', -8, 34, 10, 9, MAT.lobbyRoom);
+
+    // Окна нижнего блока
+    addWindow(-34, 39.9, 40, 0);
+    addWindow( 30, 39.9, 44, 0);
+    addWindow( 57.3, 30, 16, Math.PI / 2);
+
+    // Лестница восточного торца
+    addStairBlock(50, 25, Math.PI / 2);
+
+    // Стеклянный фасад главного входа (юг, центр)
+    const glassFront = addBox(modelGroup, -8, 40.1, 12, 0.18, 2.4, MAT.glass, 0.6);
+    // Козырёк над входом
+    addBox(modelGroup, -8, 40.4, 16, 5, 0.3, MAT.roof, 3.1);
+    // Навес перед входом
+    addBox(modelGroup, -8, 45, 18, 6, 0.22,
+      new THREE.MeshStandardMaterial({ color: 0x243858, roughness: 0.7 }), 3.1);
+
+    // ── ВЫХОДЫ (ШЫҒУ) ────────────────────────────────────────────
+    addExitSign(-47, -51.6, 0);           // левое крыло север
+    addExitSign( 17, -41.6, 0);           // правое крыло север
+    addExitSign( -8,  40.6, 0);           // главный вход (юг, центр)
+    addExitSign( 57.5, 26, Math.PI / 2);  // нижний блок восток
+
+    // ── ПОЖАРНЫЕ ЩИТЫ (ОГНЕТУШИТЕЛИ) ─────────────────────────────
+    addFireExt(-49, -40);
+    addFireExt(-45, -16);
+    addFireExt(-49,   6);
+    addFireExt( 15, -30);
+    addFireExt( 19,  -6);
+    addFireExt(-30,  23);
+    addFireExt( 10,  23);
+    addFireExt( 40,  23);
+
+    // ── ЭЛЕКТРОЩИТЫ ───────────────────────────────────────────────
+    addElecPanel(-56, -44);
+    addElecPanel( 20, -40);
+    addElecPanel(-56,  16);
+    addElecPanel( 50,  22);
+
+    // ── МЕДПУНКТ ──────────────────────────────────────────────────
+    addMedStation(-41, -10);
+
+    // ── ЭВАКУАЦИОННЫЕ СТРЕЛКИ ─────────────────────────────────────
+    addEvacArrow(-47, -42, 0);            // ↑ левый коридор к сев. выходу
+    addEvacArrow(-47, -30, 0);
+    addEvacArrow(-47,   8, Math.PI);      // ↓ левый коридор к нижнему блоку
+    addEvacArrow( 17, -32, 0);            // ↑ правый коридор к сев. выходу
+    addEvacArrow( 17, -20, 0);
+    addEvacArrow( 17,   8, Math.PI);      // ↓ правый коридор вниз
+    addEvacArrow(-36, 26, -Math.PI / 2);  // → к главному входу
+    addEvacArrow(-20, 26, -Math.PI / 2);
+    addEvacArrow(  6, 26,  Math.PI / 2);  // ← к главному входу
+    addEvacArrow( 44, 26, -Math.PI / 2);  // → к восточному выходу
+    addEvacArrow( -8, 30,  Math.PI);      // ↓ выход юг
+
+    // ── ФЛАГШТОК (перед главным входом) ───────────────────────────
+    const pole = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.07, 0.09, 9, 12),
+      new THREE.MeshStandardMaterial({ color: 0xd0d8e4, metalness: 0.7, roughness: 0.3 })
+    );
+    pole.position.set(-8, 4.5, 50);
+    scene.add(pole);
+
+    const flag = new THREE.Mesh(
+      new THREE.PlaneGeometry(2.6, 1.3),
+      new THREE.MeshStandardMaterial({ color: 0x00afca, side: THREE.DoubleSide })
+    );
+    flag.position.set(-6.8, 9.0, 50);
+    scene.add(flag);
+
+    /* ============================================================
+       ЭКСТЕРЬЕР — многоэтажный корпус (внешний вид здания)
+       Тот же П-образный план, но поднятый на 4 этажа:
+       фасад, окна, карнизы, цоколь, входная группа, LED-экран,
+       золотая вывеска, благоустройство вокруг.
+       ============================================================ */
+    const exteriorGroup = new THREE.Group();
+    exteriorGroup.visible = false;
+    buildingGroup.add(exteriorGroup);
+
+    const FLOOR_H = 4.2;               // высота этажа
+    const FLOORS  = 4;                 // этажей
+    const BLD_H   = FLOOR_H * FLOORS;  // высота корпуса
+
+    const EXT = {
+      wall:   new THREE.MeshStandardMaterial({ color: 0xe6c874, roughness: 0.9 }),
+      wallHi: new THREE.MeshStandardMaterial({ color: 0xf2dc9c, roughness: 0.88 }),
+      trim:   new THREE.MeshStandardMaterial({ color: 0xcaa348, roughness: 0.72 }),
+      plinth: new THREE.MeshStandardMaterial({ color: 0x2c2f36, roughness: 0.85 }),
+      win:    new THREE.MeshStandardMaterial({ color: 0x2f5f9e, roughness: 0.22, metalness: 0.4, emissive: 0x0b1e38, emissiveIntensity: 0.35 }),
+      roofTop:new THREE.MeshStandardMaterial({ color: 0xd6bb70, roughness: 0.95 }),
+      gold:   new THREE.MeshStandardMaterial({ color: 0xd9a41c, roughness: 0.3, metalness: 0.8, emissive: 0x3d2a00, emissiveIntensity: 0.4 }),
+      glassE: new THREE.MeshPhysicalMaterial({ color: 0x5f9fd8, roughness: 0.1, metalness: 0.1, transmission: 0.35, transparent: true, opacity: 0.62 }),
+      trunk:  new THREE.MeshStandardMaterial({ color: 0x6b4a2c, roughness: 0.95 }),
+      leafA:  new THREE.MeshStandardMaterial({ color: 0x2f7d43, roughness: 0.95 }),
+      leafB:  new THREE.MeshStandardMaterial({ color: 0x3f9c55, roughness: 0.95 }),
+      lawn:   new THREE.MeshStandardMaterial({ color: 0x8fb56a, roughness: 1.0 }),
+      path:   new THREE.MeshStandardMaterial({ color: 0xe8e6e0, roughness: 0.98 }),
+      asphalt:new THREE.MeshStandardMaterial({ color: 0x9aa0a8, roughness: 1.0 }),
+    };
+
+    function extBox(x, z, w, d, h, mat, yBase = 0, shadow = true) {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+      m.position.set(x, yBase + h / 2, z);
+      if (shadow) { m.castShadow = true; m.receiveShadow = true; }
+      exteriorGroup.add(m);
+      return m;
+    }
+
+    /* Ряды окон на фасаде.
+       axis 'x' — фасад смотрит вдоль Z (окна расставлены по X), fixed = z
+       axis 'z' — фасад смотрит вдоль X (окна расставлены по Z), fixed = x
+       skip — интервалы [from,to], где окон нет (входная группа, стыки) */
+    function extWindows(axis, fixed, from, to, normal, floors = FLOORS, skip = []) {
+      const STEP = 4.2, WW = 2.3, WH = 2.7;
+      const span = to - from;
+      const n = Math.max(0, Math.floor(span / STEP));
+      const pad = (span - n * STEP) / 2 + STEP / 2;
+      for (let f = 1; f < floors; f++) {
+        const y = f * FLOOR_H + FLOOR_H / 2 - 0.15;
+        for (let i = 0; i < n; i++) {
+          const p = from + pad + i * STEP;
+          if (skip.some(([a, b]) => p > a && p < b)) continue;
+          const geo = axis === 'x'
+            ? new THREE.BoxGeometry(WW, WH, 0.3)
+            : new THREE.BoxGeometry(0.3, WH, WW);
+          const m = new THREE.Mesh(geo, EXT.win);
+          if (axis === 'x') m.position.set(p, y, fixed + normal * 0.16);
+          else              m.position.set(fixed + normal * 0.16, y, p);
+          exteriorGroup.add(m);
+        }
+      }
+    }
+
+    /* Объём корпуса: цоколь + основной массив + карнизы + парапет */
+    function extMass(cx, cz, w, d, floors = FLOORS) {
+      const H = floors * FLOOR_H;
+      extBox(cx, cz, w, d, FLOOR_H, EXT.plinth, 0);          // тёмный цоколь
+      extBox(cx, cz, w, d, H - FLOOR_H, EXT.wall, FLOOR_H);  // основной объём
+      for (let f = 1; f < floors; f++) {                     // межэтажные пояски
+        extBox(cx, cz, w + 0.5, d + 0.5, 0.35, EXT.trim, f * FLOOR_H - 0.18, false);
+      }
+      extBox(cx, cz, w + 1.4, d + 1.4, 0.9, EXT.trim, H);          // венчающий карниз
+      extBox(cx, cz, w + 0.6, d + 0.6, 1.1, EXT.wallHi, H + 0.9);  // парапет
+      extBox(cx, cz, w, d, 0.3, EXT.roofTop, H + 2.0, false);      // кровля
+      return H;
+    }
+
+    // ── ЮЖНЫЙ (главный) БЛОК ─────────────────────────────────────
+    extMass(0, 30, 116, 20);
+    extWindows('x', 40, -58, 58,  1, FLOORS, [[-23, 7]]);             // южный фасад (без входа)
+    extWindows('x', 20, -58, 58, -1, FLOORS, [[-59, -35], [5, 29]]);  // северный, без стыков с крыльями
+    extWindows('z', 58, 20, 40,  1);                                  // восточный торец
+    extWindows('z', -58, 20, 40, -1);                                 // западный торец
+
+    // ── ЛЕВОЕ (западное) КРЫЛО ───────────────────────────────────
+    extMass(-47, -16, 22, 72);
+    extWindows('z', -58, -52, 20, -1);   // западный фасад
+    extWindows('z', -36, -52, 18,  1);   // восточный фасад (во двор)
+    extWindows('x', -52, -58, -36, -1);  // северный торец
+
+    // ── ПРАВОЕ (восточное) КРЫЛО ─────────────────────────────────
+    extMass(17, -11, 22, 62);
+    extWindows('z', 28, -42, 20,  1);    // восточный фасад
+    extWindows('z',  6, -42, 18, -1);    // западный фасад (во двор)
+    extWindows('x', -42, 6, 28, -1);     // северный торец
+
+    // ── ЦЕНТРАЛЬНЫЙ РИЗАЛИТ НАД ВХОДОМ ───────────────────────────
+    extMass(-8, 31, 30, 22, FLOORS);
+    extBox(-8, 31, 24, 16, 3.2, EXT.wallHi, BLD_H + 2.0);          // аттик
+    extBox(-8, 31, 25.4, 17.4, 0.8, EXT.trim, BLD_H + 5.2, false); // карниз аттика
+    extWindows('x', 42.2, -21, 5, 1);                              // окна ризалита
+
+    // ── ВХОДНАЯ ГРУППА ───────────────────────────────────────────
+    extBox(-8, 42.3, 22, 0.4, 3.4, EXT.glassE, 0.4);   // стеклянный витраж
+    extBox(-8, 42.5, 24, 1.2, 0.9, EXT.gold, 3.8, false); // золотой портал
+    extBox(-8, 44.6, 26, 5.2, 0.5, EXT.trim, 5.0);     // козырёк
+    [-18, -12, -4, 2].forEach(x => {                   // колонны козырька
+      const c = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.5, 5.0, 14), EXT.wallHi);
+      c.position.set(x, 2.5, 46.8); c.castShadow = true;
+      exteriorGroup.add(c);
+    });
+    for (let i = 0; i < 4; i++) {                      // ступени крыльца
+      extBox(-8, 48.4 + i * 0.9, 26 - i * 1.2, 1.0, 0.28, EXT.path, 1.1 - i * 0.28, false);
+    }
+
+    // ── ЗОЛОТАЯ ВЫВЕСКА (название университета) ───────────────────
+    (function () {
+      const c = document.createElement('canvas');
+      c.width = 1024; c.height = 96;
+      const g = c.getContext('2d');
+      g.fillStyle = '#d9a41c'; g.fillRect(0, 0, 1024, 96);
+      g.fillStyle = '#3a2600'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.font = '800 40px Inter, sans-serif';
+      g.fillText('ӘБУ ЖӘНІБЕКОВ АТЫНДАҒЫ ПЕДАГОГИКАЛЫҚ УНИВЕРСИТЕТІ', 512, 50);
+      const tex = new THREE.CanvasTexture(c); tex.anisotropy = 4;
+      const sign = new THREE.Mesh(
+        new THREE.PlaneGeometry(23, 2.0),
+        new THREE.MeshStandardMaterial({ map: tex, emissive: 0x5a4000, emissiveIntensity: 0.5, roughness: 0.4, metalness: 0.6 })
+      );
+      sign.position.set(-8, 4.25, 43.2);
+      exteriorGroup.add(sign);
+      const l = new THREE.PointLight(0xffd070, 1.6, 26);
+      l.position.set(-8, 6.5, 48);
+      exteriorGroup.add(l);
+    })();
+
+    // ── LED-ЭКРАН НА ФАСАДЕ ──────────────────────────────────────
+    (function () {
+      const c = document.createElement('canvas');
+      c.width = 512; c.height = 288;
+      const g = c.getContext('2d');
+      const grd = g.createLinearGradient(0, 0, 512, 288);
+      grd.addColorStop(0, '#0d2b5c'); grd.addColorStop(0.55, '#1f5fa8'); grd.addColorStop(1, '#0a1f45');
+      g.fillStyle = grd; g.fillRect(0, 0, 512, 288);
+      g.fillStyle = 'rgba(255,255,255,.14)';
+      for (let i = 0; i < 7; i++) g.fillRect(40 + i * 66, 150, 44, 96);
+      g.fillStyle = '#ffffff'; g.textAlign = 'center';
+      g.font = '900 62px Inter, sans-serif'; g.fillText('UniMap AI', 256, 84);
+      g.font = '700 26px Inter, sans-serif';
+      g.fillStyle = '#bcd6f5'; g.fillText('ЦИФРЛЫҚ КАМПУС', 256, 124);
+      const tex = new THREE.CanvasTexture(c); tex.anisotropy = 4;
+      const screen = new THREE.Mesh(new THREE.PlaneGeometry(11, 6.2), new THREE.MeshBasicMaterial({ map: tex }));
+      screen.position.set(-8, 11.5, 42.35);
+      exteriorGroup.add(screen);
+      extBox(-8, 42.2, 11.9, 0.35, 7.0, EXT.plinth, 8.1, false);  // рамка экрана
+      const l = new THREE.PointLight(0x4a9ae8, 2.0, 34);
+      l.position.set(-8, 11.5, 47);
+      exteriorGroup.add(l);
+    })();
+
+    // ── ФЛАГИ НА ФАСАДЕ ──────────────────────────────────────────
+    [-14, -8, -2].forEach((x, i) => {
+      const p = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 5, 8), EXT.trim);
+      p.rotation.z = Math.PI / 3.2;
+      p.position.set(x, 17.5, 42.6);
+      exteriorGroup.add(p);
+      const f = new THREE.Mesh(
+        new THREE.PlaneGeometry(2.4, 1.4),
+        new THREE.MeshStandardMaterial({ color: i === 1 ? 0x00afca : 0x1b4d9c, side: THREE.DoubleSide })
+      );
+      f.position.set(x + 1.5, 19.4, 43.3);
+      exteriorGroup.add(f);
+    });
+
+    /* ============================================================
+       БЛАГОУСТРОЙСТВО ВОКРУГ (видно в обоих режимах)
+       ============================================================ */
+    const siteGroup = new THREE.Group();
+    scene.add(siteGroup);
+
+    function siteBox(x, z, w, d, h, mat, yBase = 0) {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+      m.position.set(x, yBase + h / 2, z);
+      m.receiveShadow = true;
+      siteGroup.add(m);
+      return m;
+    }
+
+    function addTree(x, z, s = 1, conic = false) {
+      const g = new THREE.Group();
+      const tr = new THREE.Mesh(new THREE.CylinderGeometry(0.22 * s, 0.3 * s, 2.4 * s, 8), EXT.trunk);
+      tr.position.y = 1.2 * s; tr.castShadow = true;
+      g.add(tr);
+      if (conic) {
+        for (let i = 0; i < 3; i++) {
+          const c = new THREE.Mesh(new THREE.ConeGeometry((2.1 - i * 0.5) * s, 2.6 * s, 10), i % 2 ? EXT.leafB : EXT.leafA);
+          c.position.y = (3.0 + i * 1.5) * s; c.castShadow = true;
+          g.add(c);
+        }
+      } else {
+        const c1 = new THREE.Mesh(new THREE.SphereGeometry(2.0 * s, 10, 9), EXT.leafA);
+        c1.position.y = 4.0 * s; c1.castShadow = true;
+        const c2 = new THREE.Mesh(new THREE.SphereGeometry(1.4 * s, 10, 9), EXT.leafB);
+        c2.position.set(1.2 * s, 3.2 * s, 0.6 * s); c2.castShadow = true;
+        g.add(c1, c2);
+      }
+      g.position.set(x, 0, z);
+      siteGroup.add(g);
+    }
+
+    function addCar(x, z, rot, color) {
+      const g = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.8, 4.4),
+        new THREE.MeshStandardMaterial({ color, roughness: 0.4, metalness: 0.5 }));
+      body.position.y = 0.75; body.castShadow = true;
+      const cab = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.7, 2.2),
+        new THREE.MeshStandardMaterial({ color: 0x1e2a3a, roughness: 0.25, metalness: 0.4 }));
+      cab.position.set(0, 1.45, -0.2); cab.castShadow = true;
+      g.add(body, cab);
+      const wm = new THREE.MeshStandardMaterial({ color: 0x1a1a1e, roughness: 0.9 });
+      [[0.95, 1.4], [-0.95, 1.4], [0.95, -1.4], [-0.95, -1.4]].forEach(([wx, wz]) => {
+        const w = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.26, 12), wm);
+        w.rotation.z = Math.PI / 2;
+        w.position.set(wx, 0.36, wz);
+        g.add(w);
+      });
+      g.position.set(x, 0, z);
+      g.rotation.y = rot;
+      siteGroup.add(g);
+    }
+
+    function addLamp(x, z) {
+      const g = new THREE.Group();
+      const p = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 7, 8),
+        new THREE.MeshStandardMaterial({ color: 0x3a4250, metalness: 0.6, roughness: 0.4 }));
+      p.position.y = 3.5; p.castShadow = true;
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 10, 10),
+        new THREE.MeshStandardMaterial({ color: 0xfff2c0, emissive: 0xffd870, emissiveIntensity: 0.9 }));
+      head.position.y = 7.2;
+      g.add(p, head);
+      g.position.set(x, 0, z);
+      siteGroup.add(g);
+    }
+
+    function addPerson(x, z, color) {
+      const g = new THREE.Group();
+      const b = new THREE.Mesh(new THREE.CapsuleGeometry(0.22, 0.6, 4, 8),
+        new THREE.MeshStandardMaterial({ color, roughness: 0.7 }));
+      b.position.y = 0.85; b.castShadow = true;
+      const h = new THREE.Mesh(new THREE.SphereGeometry(0.2, 10, 10),
+        new THREE.MeshStandardMaterial({ color: 0xf2c090, roughness: 0.8 }));
+      h.position.y = 1.42;
+      g.add(b, h);
+      g.position.set(x, 0, z);
+      g.rotation.y = (x * 7 + z * 3) % 6.28;
+      siteGroup.add(g);
+    }
+
+    // Газоны вдоль фасада и во дворе
+    siteBox(-38, 47, 30, 10, 0.22, EXT.lawn);
+    siteBox( 26, 47, 34, 10, 0.22, EXT.lawn);
+    siteBox(-14,  0, 34, 46, 0.22, EXT.lawn);   // внутренний двор
+    siteBox(-70, -16, 16, 72, 0.22, EXT.lawn);
+    siteBox( 42, -12, 20, 60, 0.22, EXT.lawn);
+
+    // Пешеходные дорожки
+    siteBox(-8, 54, 24, 14, 0.26, EXT.path);    // площадь перед входом
+    siteBox( 0, 62, 150, 8, 0.26, EXT.path);    // главная аллея
+    siteBox(-64, 24, 20, 84, 0.26, EXT.path);   // вдоль западного крыла
+    siteBox( 52, 24, 24, 84, 0.26, EXT.path);   // вдоль восточного крыла
+
+    // Автопарковка (восток)
+    siteBox(74, 56, 40, 26, 0.25, EXT.asphalt);
+    for (let i = 0; i < 6; i++) siteBox(58.5 + i * 6, 56, 0.25, 24, 0.02, EXT.path, 0.25);
+    [[61, 50], [67, 50], [79, 50], [61, 62], [73, 62], [85, 62]].forEach(([x, z], i) => {
+      addCar(x, z, 0, [0xc9323f, 0x2e63b8, 0xe8e8ea, 0x37424f, 0xd8a41c, 0x2f8f5f][i]);
+    });
+
+    // Деревья вдоль фасадов и во дворе
+    [-52, -44, -34, -26, 12, 20, 30, 38, 46].forEach((x, i) => addTree(x, 46.5, 1 + (i % 3) * 0.12, i % 3 === 0));
+    [-14, -4, 6, 14].forEach((z, i) => addTree(-66, z - 10, 1.05, i % 2 === 0));
+    [-16, -6, 4, 14].forEach((z, i) => addTree(50, z - 8, 1.05, i % 2 === 1));
+    [[-14, -8], [-14, 8], [-4, -20], [-22, -28], [-6, 4]].forEach(([x, z], i) => addTree(x, z, 0.95, i % 2 === 0));
+
+    // Фонари
+    [[-30, 50], [14, 50], [-8, 60], [42, 50], [-56, 34], [50, 34]].forEach(([x, z]) => addLamp(x, z));
+
+    // Люди на площади
+    [[-16, 52, 0x2f5f9e], [-2, 55, 0xc9323f], [-10, 58, 0x37424f], [6, 51, 0x2f8f5f],
+     [-24, 49, 0x7a4fb5], [18, 53, 0xd8a41c], [-8, 63, 0x2f5f9e], [30, 60, 0xc9323f]
+    ].forEach(([x, z, c]) => addPerson(x, z, c));
+
+    // ── КРЫША (опционально) ────────────────────────────────────────
+    [
+      [-47, -16, 24, 74],
+      [ 17, -11, 24, 64],
+      [  0,  30, 118, 22],
+    ].forEach(([x, z, w, d]) => {
+      addBox(roofGroup, x, z, w + 0.8, d + 0.8, 0.4, MAT.roof, 3.6);
+    });
+
+    // ── МЕТКИ БЛОКОВ (крупные надписи на полу) ────────────────────
+    function addFloorLabel(text, x, z, w = 9, d = 3.2) {
+      const tex = makeLabelTexture(text, '', 'rgba(0,0,0,0)', '#344060');
+      const mesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(w, d),
+        new THREE.MeshBasicMaterial({ map: tex, transparent: true })
+      );
+      mesh.rotation.x = -Math.PI / 2;
+      mesh.position.set(x, 0.74, z);
+      modelGroup.add(mesh);
+    }
+
+    addFloorLabel('ЛЕВОЕ КРЫЛО', -47, -58, 18, 4);
+    addFloorLabel('ПРАВОЕ КРЫЛО', 17, -48, 18, 4);
+    addFloorLabel('НИЖНИЙ БЛОК', 0, 46, 18, 4);
+    addFloorLabel('UniMap', -15, -6, 14, 4);
+
+    /* ──  Интерактивные меши (хитбоксы для клика) ─── */
+    const interactiveMeshes = [];
+    const roomLookup = {};
+
+    Object.entries(NODES).forEach(([id, n]) => {
+      const m = new THREE.Mesh(
+        new THREE.SphereGeometry(1.8, 6, 6),
+        new THREE.MeshBasicMaterial({ visible: false })
+      );
+      m.position.set(n.x, 1.0, n.z);
+      m.userData = { id, name: n.label };
+      buildingGroup.add(m);
+      interactiveMeshes.push(m);
+      roomLookup[id] = m;
+    });
+
+    /* ============================================================
+       МАРШРУТ — Dijkstra
+       ============================================================ */
+    const adj = {};
+    EDGES.forEach(([a, b]) => {
+      if (!NODES[a] || !NODES[b]) return;
+      const dx = NODES[a].x - NODES[b].x;
+      const dz = NODES[a].z - NODES[b].z;
+      const w  = Math.hypot(dx, dz);
+      (adj[a] = adj[a] || []).push([b, w]);
+      (adj[b] = adj[b] || []).push([a, w]);
+    });
+
+    function findPath(start, goal) {
+      if (!NODES[start] || !NODES[goal]) return null;
+      const dist = {}, prev = {}, queue = new Set(Object.keys(NODES));
+      Object.keys(NODES).forEach(k => dist[k] = Infinity);
+      dist[start] = 0;
+      while (queue.size) {
+        let u = null, best = Infinity;
+        queue.forEach(k => { if (dist[k] < best) { best = dist[k]; u = k; } });
+        if (u === null || best === Infinity || u === goal) break;
+        queue.delete(u);
+        (adj[u] || []).forEach(([v, w]) => {
+          if (!queue.has(v)) return;
+          const alt = dist[u] + w;
+          if (alt < dist[v]) { dist[v] = alt; prev[v] = u; }
+        });
+      }
+      if (dist[goal] === Infinity) return null;
+      const path = [];
+      let cur = goal;
+      while (cur != null) { path.unshift(cur); cur = prev[cur]; }
+      return path;
+    }
+
+    let routeLine = null, routeMarkers = [], avatar = null;
+    let routeSteps = [], currentStep = 0;
+
+    /* ─── Модель человека (для маршрута и режима ходьбы) ─── */
+    function makePerson() {
+      const g = new THREE.Group();
+      const suit  = new THREE.MeshStandardMaterial({ color: 0x003fb1, roughness: 0.6 });
+      const skin  = new THREE.MeshStandardMaterial({ color: 0xf2c090, roughness: 0.7 });
+      const pants = new THREE.MeshStandardMaterial({ color: 0x1c2836, roughness: 0.7 });
+
+      const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.26, 0.55, 4, 10), suit);
+      torso.position.y = 1.05; torso.castShadow = true;
+
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 14, 14), skin);
+      head.position.y = 1.62; head.castShadow = true;
+
+      // Конечности с шарниром сверху — качаются при ходьбе
+      const mkLimb = (mat, len, r) => {
+        const pivot = new THREE.Group();
+        const m = new THREE.Mesh(new THREE.CapsuleGeometry(r, len, 4, 8), mat);
+        m.position.y = -(len / 2 + r);
+        m.castShadow = true;
+        pivot.add(m);
+        return pivot;
+      };
+      const legL = mkLimb(pants, 0.42, 0.10); legL.position.set( 0.14, 0.72, 0);
+      const legR = mkLimb(pants, 0.42, 0.10); legR.position.set(-0.14, 0.72, 0);
+      const armL = mkLimb(suit,  0.36, 0.07); armL.position.set( 0.36, 1.30, 0);
+      const armR = mkLimb(suit,  0.36, 0.07); armR.position.set(-0.36, 1.30, 0);
+
+      g.add(torso, head, legL, legR, armL, armR);
+      g.userData.limbs = { legL, legR, armL, armR };
+      return g;
+    }
+
+    function clearRoute() {
+      if (routeLine) { buildingGroup.remove(routeLine); routeLine = null; }
+      routeMarkers.forEach(m => buildingGroup.remove(m));
+      routeMarkers = [];
+      if (avatar) { buildingGroup.remove(avatar); avatar = null; }
+      stepCard.classList.remove('show');
+      routeSteps = []; currentStep = 0;
+    }
+
+    function drawRoute(path) {
+      clearRoute();
+      if (!path || path.length < 2) return;
+      const pts = path.map(id => new THREE.Vector3(NODES[id].x, 0.55, NODES[id].z));
+      const curve = new THREE.CatmullRomCurve3(pts, false, 'centripetal');
+      const tubeGeo = new THREE.TubeGeometry(curve, pts.length * 10, 0.32, 8, false);
+      routeLine = new THREE.Mesh(tubeGeo, MAT.route);
+      buildingGroup.add(routeLine);
+
+      const startMk = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.7, 0.7, 0.28, 24),
+        new THREE.MeshStandardMaterial({ color: 0x1aa57a, emissive: 0x1aa57a, emissiveIntensity: 0.6 })
+      );
+      startMk.position.copy(pts[0]); startMk.position.y = 0.2;
+      buildingGroup.add(startMk); routeMarkers.push(startMk);
+
+      const endMk = new THREE.Mesh(
+        new THREE.ConeGeometry(0.9, 2.4, 16),
+        new THREE.MeshStandardMaterial({ color: 0xcc1830, emissive: 0xcc1830, emissiveIntensity: 0.5 })
+      );
+      endMk.position.copy(pts[pts.length - 1]); endMk.position.y = 1.4;
+      buildingGroup.add(endMk); routeMarkers.push(endMk);
+
+      // Аватар-человечек
+      avatar = makePerson();
+      avatar.position.copy(pts[0]);
+      avatar.position.y = 0;
+      buildingGroup.add(avatar);
+      walkDist = 0;
+
+      buildSteps(path, pts);
+      showStep(0);
+    }
+
+    function buildSteps(path, pts) {
+      routeSteps = [];
+      for (let i = 0; i < path.length; i++) {
+        const node = NODES[path[i]];
+        let dir = 'straight', text = `Идите: ${node.label}`;
+        if (i === 0) { text = `Старт: ${node.label}`; dir = 'flag'; }
+        else if (i === path.length - 1) { text = `Финиш: ${node.label}`; dir = 'place'; }
+        else {
+          const a = pts[i - 1], b = pts[i], c = pts[i + 1] || b;
+          const v1 = new THREE.Vector3().subVectors(b, a);
+          const v2 = new THREE.Vector3().subVectors(c, b);
+          const cross = v1.x * v2.z - v1.z * v2.x;
+          if (v1.angleTo(v2) > 0.38) {
+            dir = cross > 0 ? 'turn_left' : 'turn_right';
+            text = `Поверните ${cross > 0 ? 'налево' : 'направо'} (${node.label})`;
+          } else {
+            text = `Прямо · ${node.label}`;
+          }
+        }
+        const dist = i > 0 ? pts[i].distanceTo(pts[i - 1]) : 0;
+        routeSteps.push({
+          text, dir,
+          meta: dist > 0 ? `${dist.toFixed(1)} м · шаг ${i}/${path.length - 1}` : 'Начало маршрута'
+        });
+      }
+    }
+
+    /* ============================================================
+       UI
+       ============================================================ */
+    const fromInput = document.getElementById('from-input');
+    const toInput   = document.getElementById('to-input');
+    const rowFrom   = document.getElementById('row-from');
+    const rowTo     = document.getElementById('row-to');
+    const stepCard  = document.getElementById('step-card');
+    const stepText  = document.getElementById('step-text');
+    const stepMeta  = document.getElementById('step-meta');
+    const stepIcon  = document.getElementById('step-icon');
+    const toast     = document.getElementById('toast');
+
+    let activeField = 'to';
+    fromInput.addEventListener('focus', () => { activeField = 'from'; rowFrom.classList.add('focused'); rowTo.classList.remove('focused'); });
+    toInput.addEventListener('focus',   () => { activeField = 'to';   rowTo.classList.add('focused'); rowFrom.classList.remove('focused'); });
+
+    function resolveQuery(q) {
+      if (!q) return null;
+      const k = q.toLowerCase().trim();
+      if (NODES[k]) return k;
+      if (ALIASES[k]) return ALIASES[k];
+      for (const id in NODES) if (NODES[id].label.toLowerCase().includes(k)) return id;
+      return null;
+    }
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    function buildRoute() {
+      const fromId = resolveQuery(fromInput.value) || 'entrance';
+      const toId   = resolveQuery(toInput.value);
+      if (!toInput.value.trim()) { showToast('Укажите, куда идти'); toInput.focus(); return; }
+      if (!toId) { showToast('Не нашли: «' + toInput.value + '»'); return; }
+      const path = findPath(fromId, toId);
+      if (!path) { showToast('Путь не найден'); return; }
+      if (viewMode === 'ext') setView('iso');
+      drawRoute(path);
+      showToast(`${NODES[fromId].label} → ${NODES[toId].label}`);
+      stepCard.classList.add('show');
+    }
+
+    document.getElementById('btn-route').addEventListener('click', buildRoute);
+    document.getElementById('btn-swap').addEventListener('click', () => {
+      const t = fromInput.value; fromInput.value = toInput.value; toInput.value = t;
+    });
+    [fromInput, toInput].forEach(inp => inp.addEventListener('keydown', e => { if (e.key === 'Enter') buildRoute(); }));
+
+    document.querySelectorAll('.room-chip').forEach(btn => btn.addEventListener('click', () => {
+      const id = btn.dataset.room;
+      const node = NODES[id];
+      if (!node) return;
+      if (activeField === 'from') fromInput.value = node.label;
+      else toInput.value = node.label;
+      flyTo(node.x, node.z);
+    }));
+
+    const STEP_ICONS = { straight:'straight', turn_left:'turn_left', turn_right:'turn_right', flag:'flag', place:'place' };
+
+    function showStep(i) {
+      if (!routeSteps.length) return;
+      currentStep = Math.max(0, Math.min(routeSteps.length - 1, i));
+      const s = routeSteps[currentStep];
+      stepText.textContent = s.text;
+      stepMeta.textContent = s.meta;
+      stepIcon.textContent = STEP_ICONS[s.dir] || 'straight';
+    }
+
+    document.getElementById('step-prev').addEventListener('click', () => showStep(currentStep - 1));
+    document.getElementById('step-next').addEventListener('click', () => showStep(currentStep + 1));
+    document.getElementById('step-close').addEventListener('click', () => stepCard.classList.remove('show'));
+
+    /* ─── Режимы вида ─── */
+    function animateCamera(pos, look, dur = 750) {
+      const start = camera.position.clone();
+      const startT = controls.target.clone();
+      const t0 = performance.now();
+      function step() {
+        const t = Math.min(1, (performance.now() - t0) / dur);
+        const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        camera.position.lerpVectors(start, new THREE.Vector3(pos.x, pos.y, pos.z), e);
+        controls.target.lerpVectors(startT, new THREE.Vector3(look.x, look.y, look.z), e);
+        controls.update();
+        if (t < 1) requestAnimationFrame(step);
+      }
+      step();
+    }
+
+    let viewMode = 'ext';
+
+    /* Показ/скрытие внутренней планировки (и маршрута на ней) */
+    function setInteriorVisible(v) {
+      modelGroup.visible = v;
+      if (!v) roofGroup.visible = false;
+      if (routeLine) routeLine.visible = v;
+      routeMarkers.forEach(m => m.visible = v);
+      if (avatar) avatar.visible = v;
+    }
+
+    function setView(mode) {
+      viewMode = mode;
+      document.querySelectorAll('.view-modes button').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+      controls.enabled = (mode !== 'walk');
+      const ext = (mode === 'ext');
+      exteriorGroup.visible = ext;
+      setInteriorVisible(!ext);
+      if (ext) animateCamera({ x: 120, y: 92, z: 150 }, { x: -4, y: 6, z: 6 });
+      if (mode === 'iso')  animateCamera({ x: 0, y: 110, z: 138 }, { x: 0, y: 0, z: -4 });
+      if (mode === 'top')  animateCamera({ x: 0, y: 215, z: 8 }, { x: 0, y: 0, z: -4 });
+      if (mode === 'walk') {
+        // Если маршрута нет — строим демо-маршрут, чтобы было за кем идти
+        if (!routeLine) {
+          if (!toInput.value.trim()) { fromInput.value = 'Главный вход'; toInput.value = 'Деканат 105'; }
+          buildRoute();
+        }
+        // Камеру подхватит animateAvatar — она плавно «прилетит» за спину человеку
+      }
+    }
+    document.querySelectorAll('.view-modes button').forEach(b => b.addEventListener('click', () => setView(b.dataset.mode)));
+
+    function flyTo(x, z) {
+      animateCamera({ x: x + 12, y: 22, z: z + 18 }, { x, y: 1, z });
+    }
+
+    document.getElementById('btn-zoom-in').addEventListener('click',  () => { camera.zoom = Math.min(3, camera.zoom * 1.18); camera.updateProjectionMatrix(); });
+    document.getElementById('btn-zoom-out').addEventListener('click', () => { camera.zoom = Math.max(0.3, camera.zoom / 1.18); camera.updateProjectionMatrix(); });
+    document.getElementById('btn-reset').addEventListener('click', () => { camera.zoom = 1; camera.updateProjectionMatrix(); setView('iso'); });
+    document.getElementById('btn-roof').addEventListener('click', () => {
+      if (viewMode === 'ext') { setView('iso'); return; }   // из экстерьера — к плану этажа
+      roofGroup.visible = !roofGroup.visible;
+    });
+
+    /* ─── Клик по объекту ─── */
+    const raycaster = new THREE.Raycaster();
+    const mouse2 = new THREE.Vector2();
+    canvas.addEventListener('click', e => {
+      const r = canvas.getBoundingClientRect();
+      mouse2.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+      mouse2.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+      raycaster.setFromCamera(mouse2, camera);
+      const hits = raycaster.intersectObjects(interactiveMeshes, false);
+      if (!hits.length) return;
+      const data = hits[0].object.userData;
+      if (!data || !data.id) return;
+      const node = NODES[data.id];
+      if (!node) return;
+      if (activeField === 'from') { fromInput.value = node.label; activeField = 'to'; rowFrom.classList.remove('focused'); rowTo.classList.add('focused'); }
+      else { toInput.value = node.label; }
+      showToast(`Выбрано: ${node.label}`);
+    });
+
+    /* ─── Анимация аватара + камера от третьего лица (ходьба) ─── */
+    let walkDist = 0;
+    const WALK_SPEED = 3.0; // м/с
+
+    function animateAvatar(dt) {
+      if (!avatar || !routeLine) return;
+      const curve = routeLine.geometry.parameters?.path;
+      if (!curve?.getPointAt) return;
+
+      const L = curve.getLength();
+      walkDist += dt * WALK_SPEED;
+      const t = (walkDist % L) / L;
+      const p = curve.getPointAt(t);
+      avatar.position.set(p.x, 0, p.z);
+      const tan = curve.getTangentAt(Math.min(0.999, t));
+      avatar.rotation.y = Math.atan2(tan.x, tan.z);
+
+      // Махи ногами и руками в такт шагам
+      const s = Math.sin(walkDist * 3.6) * 0.55;
+      const { legL, legR, armL, armR } = avatar.userData.limbs;
+      legL.rotation.x =  s;        legR.rotation.x = -s;
+      armL.rotation.x = -s * 0.7;  armR.rotation.x =  s * 0.7;
+
+      // Режим «Ходьба»: камера плавно следует за человеком со спины
+      if (viewMode === 'walk') {
+        const camPos = new THREE.Vector3(p.x - tan.x * 7.5, 3.6, p.z - tan.z * 7.5);
+        camera.position.lerp(camPos, 0.06);
+        controls.target.lerp(new THREE.Vector3(p.x + tan.x * 2, 1.3, p.z + tan.z * 2), 0.1);
+      }
+    }
+
+    /* ─── Resize + Render loop ─── */
+    function resize() {
+      const r = canvas.getBoundingClientRect();
+      renderer.setSize(r.width, r.height, false);
+      camera.aspect = r.width / r.height;
+      camera.updateProjectionMatrix();
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    let last = performance.now();
+    function loop(now) {
+      const dt = Math.min(0.1, (now - last) / 1000);
+      last = now;
+      controls.update();
+      animateAvatar(dt);
+      flag.rotation.y = Math.sin(now * 0.0012) * 0.18;
+      renderer.render(scene, camera);
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    // Стартовый вид — внешний облик корпуса
+    setView('ext');
+    // Демо-маршрут наготове: появится при переходе в режим «План»
+    setTimeout(() => {
+      fromInput.value = 'Главный вход';
+      toInput.value = 'Деканат 105';
+      const path = findPath('entrance', 'r105');
+      if (path) { drawRoute(path); setInteriorVisible(viewMode !== 'ext'); }
+    }, 700);
+  </script>
+</body>
+</html>

@@ -1,0 +1,1221 @@
+/* ============================================================
+   UniMap AI — система «Указатель»
+   Палитра взята с фасада корпуса (песочное золото, синее
+   остекление) и из легенды эвакуационной схемы (зелёный ШЫҒУ,
+   красный ӨРТ). Номер кабинета набран моноширинным — как на
+   дверной табличке. Скошенный угол повторяет срез
+   северо-западного угла здания.
+   ============================================================ */
+
+:root {
+  /* Поверхности */
+  --ink: #002244;            /* Глубокий синий из логотипа для темных текстов */
+  --slate: #f1f5f9;
+  --slate-2: #e2e8f0;
+  --paper: #f0f4f8;          /* Нежный светло-голубой фон */
+  --paper-2: #e2e8f0;
+  --card: rgba(255, 255, 255, 0.72); /* Матовое стекло */
+  --card-solid: #ffffff;             /* Непрозрачная карточка — для шторки поверх 3D-сцены */
+
+  /* Акценты — синий и золотисто-желтый из логотипа */
+  --sand: #ffb700;          /* Насыщенное золото из логотипа */
+  --sand-deep: #cc9200;
+  --signal: #0ea5e9;        /* Неоновый синий */
+  --signal-deep: #0284c7;
+  --signal-soft: rgba(14, 165, 233, 0.08);
+  --exit: #10b981;          /* ШЫҒУ, из легенды плана */
+  --alarm: #ef4444;         /* ӨРТ, из легенды плана */
+
+  /* Текст */
+  --text: #0f172a;           /* Угольно-черный для высокой читаемости */
+  --text-2: #334155;         /* Серый */
+  --text-3: #64748b;
+  --on-dark: #f8fafc;
+
+  /* Категории помещений — неоновые свечения */
+  --cat-study: rgba(56, 189, 248, 0.16);
+  --cat-admin: rgba(253, 224, 71, 0.22);
+  --cat-service: rgba(52, 211, 153, 0.16);
+  --cat-tech: rgba(248, 113, 113, 0.16);
+  --cat-transit: rgba(192, 132, 252, 0.16);
+
+  /* Тени: мягкие, рассеянные тени на светлом фоне */
+  --lift-1: 0 2px 8px rgba(15, 23, 42, 0.05), 0 4px 16px rgba(15, 23, 42, 0.03);
+  --lift-2: 0 10px 30px rgba(15, 23, 42, 0.08), 0 20px 60px rgba(15, 23, 42, 0.08);
+  --lift-3: 0 20px 48px rgba(15, 23, 42, 0.12), 0 40px 100px rgba(15, 23, 42, 0.15);
+
+  /* Шаг сетки — 4px */
+  --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px;
+  --s5: 20px; --s6: 24px; --s8: 32px; --s10: 40px;
+
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-xl: 30px;
+
+  --chamfer: 11px;          /* срез угла — как у корпуса */
+
+  --font-display: Unbounded, Inter, system-ui, sans-serif;
+  --font-body: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --ease: cubic-bezier(.2, .8, .25, 1);
+}
+
+* { box-sizing: border-box; }
+
+/* Высоту берём у вьюпорта: с viewport-fit=cover это вся площадь экрана
+   вместе с безопасными зонами — тем же основанием, от которого считают
+   низ фиксированные док, поиск и шторка. --app-vh (его пишет скрипт из
+   lib/viewport.js по visualViewport) держим как переменную для сцены и
+   как страховку в браузерах, где 100% врёт. */
+html, body, #root { margin: 0; height: 100%; min-height: var(--app-vh, 100%); }
+
+html {
+  /* Safari при повороте экрана самовольно увеличивает кегль текста */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text);
+  background: var(--paper);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Ведём себя как приложение, а не как страница: без оттяжки-перезагрузки
+     сверху, без зума по двойному тапу и без серой вспышки под пальцем. */
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Интерфейсная обвязка не выделяется и не показывает лупу с «Копировать»
+   по долгому нажатию — тексту в карточках выделение оставляем. */
+button, .rail, .sheet-handle, .floor-pill, .map-modes, .controls, .plate {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+button, input, textarea { font: inherit; color: inherit; }
+button { border: 0; background: none; cursor: pointer; }
+h1, h2, h3, p, ul, ol { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+
+/* Видимый фокус с клавиатуры — единый для всего приложения */
+:focus-visible {
+  outline: 2.5px solid var(--signal);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.on-dark :focus-visible, .nav-hero :focus-visible { outline-color: var(--sand); }
+
+/* Кому тяжело от движения — выключаем анимации */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.icon {
+  font-family: 'Material Symbols Outlined';
+  font-size: 22px;
+  line-height: 1;
+  display: inline-flex;
+  font-variation-settings: 'FILL' 0, 'wght' 450, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+  flex: 0 0 auto;
+}
+
+/* ── Типографика ──────────────────────────────────────────── */
+.display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+.mono { font-family: var(--font-mono); font-feature-settings: 'tnum' 1; }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.eyebrow::before {
+  content: '';
+  width: 14px;
+  height: 2px;
+  background: var(--sand);
+}
+
+/* ============================================================
+   Дверная табличка — опорный элемент всего интерфейса
+   ============================================================ */
+.plate {
+  --plate-bg: var(--cat-transit);
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  background: var(--plate-bg) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  color: var(--text) !important;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  /* Срез левого верхнего угла — как у северо-западного угла корпуса */
+  clip-path: polygon(var(--chamfer) 0, 100% 0, 100% 100%, 0 100%, 0 var(--chamfer));
+  border-radius: 3px;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06), 0 0 1px rgba(15, 23, 42, 0.1) !important;
+}
+.plate .icon { font-size: 20px; }
+.plate.small { width: 38px; height: 38px; font-size: 12.5px; --chamfer: 9px; }
+.plate.small .icon { font-size: 17px; }
+.plate.large { width: 56px; height: 56px; font-size: 17px; --chamfer: 13px; }
+.plate.large .icon { font-size: 24px; }
+
+.plate[data-cat='study']   { --plate-bg: var(--cat-study); }
+.plate[data-cat='admin']   { --plate-bg: var(--cat-admin); }
+.plate[data-cat='service'] { --plate-bg: var(--cat-service); }
+.plate[data-cat='tech']    { --plate-bg: var(--cat-tech); }
+.plate[data-cat='transit'] { --plate-bg: var(--cat-transit); }
+
+/* ── Кнопки ──────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  min-height: 44px;
+  padding: 0 var(--s4);
+  border-radius: var(--r-md);
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+  transition: background .16s var(--ease), color .16s var(--ease),
+              transform .16s var(--ease), box-shadow .16s var(--ease);
+}
+.btn .icon { font-size: 19px; }
+.btn:active { transform: translateY(1px); }
+
+.btn-primary { background: var(--signal); color: #fff; box-shadow: var(--lift-1); }
+.btn-primary:hover { background: var(--signal-deep); box-shadow: var(--lift-2); }
+
+.btn-ghost { background: var(--paper-2); color: var(--text); }
+.btn-ghost:hover { background: #d5deea; }
+.btn-ghost:disabled { opacity: .42; cursor: default; transform: none; }
+
+.btn-soft { background: var(--signal-soft); color: var(--signal-deep); min-height: 38px; }
+.btn-soft:hover { background: #cfddfa; }
+
+.btn-sand { background: var(--sand); color: #2a1f05; }
+.btn-sand:hover { background: #d3a745; }
+
+.btn.big { min-height: 52px; padding: 0 var(--s6); font-size: 14.5px; }
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-sm);
+  background: var(--card);
+  color: var(--text-2);
+  box-shadow: var(--lift-1);
+  transition: color .16s var(--ease), background .16s var(--ease);
+}
+.icon-btn:hover { color: var(--signal); }
+.icon-btn.on { color: var(--sand-deep); background: #fdf3dd; }
+.icon-btn.primary { background: var(--signal); color: #fff; }
+.icon-btn.primary:hover { background: var(--signal-deep); }
+.icon-btn.ghost { background: none; box-shadow: none; }
+.icon-btn.ghost:hover { background: var(--paper-2); }
+.icon-btn.big { width: 48px; height: 48px; }
+
+.link-btn {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--signal);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── Поле ввода с подсказками ────────────────────────────── */
+.field { position: relative; display: flex; align-items: center; }
+.field input {
+  width: 100%;
+  height: 48px;
+  padding: 0 42px;
+  border: 1.5px solid transparent;
+  border-radius: var(--r-md);
+  background: var(--paper-2);
+  font-size: 14px;
+  font-weight: 550;
+  outline: 0;
+  transition: border-color .16s var(--ease), background .16s var(--ease);
+}
+.field input:focus { border-color: var(--signal); background: var(--card); }
+.field input:focus-visible { outline: none; }
+.field input::placeholder { color: var(--text-3); font-weight: 450; }
+.field-icon {
+  position: absolute;
+  left: 13px;
+  font-size: 20px;
+  color: var(--text-3);
+  pointer-events: none;
+}
+.field-clear {
+  position: absolute;
+  right: 7px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-sm);
+  color: var(--text-3);
+}
+.field-clear:hover { background: var(--paper); color: var(--text); }
+
+/* Список подсказок живёт в <body> с position: fixed —
+   иначе прокручиваемая панель его обрезала */
+.suggest {
+  position: fixed;
+  z-index: 900;
+  overflow: auto;
+  padding: var(--s1);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(20px) saturate(125%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(125%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: var(--lift-3);
+}
+.suggest-row {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 18px;
+  gap: var(--s3);
+  align-items: center;
+  width: 100%;
+  padding: var(--s2);
+  border-radius: var(--r-sm);
+  text-align: left;
+}
+.suggest-row.on { background: var(--signal-soft); }
+.suggest-text strong { display: block; font-size: 13.5px; font-weight: 600; }
+.suggest-text em {
+  display: block;
+  font-style: normal;
+  font-size: 11.5px;
+  color: var(--text-3);
+}
+.suggest-go { font-size: 15px; color: var(--text-3); }
+.suggest-empty { padding: var(--s3) var(--s4); font-size: 12.5px; color: var(--text-2); }
+
+/* ── Переключатель ───────────────────────────────────────── */
+.switch-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) 42px;
+  gap: var(--s3);
+  align-items: center;
+  padding: var(--s3) var(--s4);
+  border-radius: var(--r-md);
+  background: var(--paper-2);
+  cursor: pointer;
+}
+.switch-row + .switch-row { margin-top: var(--s2); }
+.switch-row.compact { padding: var(--s2) var(--s3); }
+.switch-row > .icon { font-size: 20px; color: var(--text-2); }
+.switch-text strong { display: block; font-size: 13px; font-weight: 600; }
+.switch-text em {
+  display: block;
+  font-style: normal;
+  font-size: 11.5px;
+  color: var(--text-3);
+}
+.switch-row input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.switch-track {
+  position: relative;
+  width: 42px;
+  height: 25px;
+  border-radius: 999px;
+  background: #bcc7d6;
+  transition: background .18s var(--ease);
+}
+.switch-track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(11, 18, 32, .28);
+  transition: transform .18s var(--ease);
+}
+.switch-row input:checked ~ .switch-track { background: var(--exit); }
+.switch-row input:checked ~ .switch-track::after { transform: translateX(17px); }
+.switch-row input:focus-visible ~ .switch-track { outline: 2.5px solid var(--signal); outline-offset: 2px; }
+
+/* ============================================================
+   Экран карты
+   ============================================================ */
+.app { display: grid; grid-template-columns: 348px minmax(0, 1fr); height: 100%; }
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  padding: var(--s5);
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.76) !important;
+  backdrop-filter: blur(20px) saturate(125%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(125%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: var(--lift-2);
+  z-index: 5;
+}
+.panel-handle {
+  display: none;
+}
+.panel::-webkit-scrollbar { width: 5px; }
+.panel::-webkit-scrollbar-thumb { background: #cbd5e2; border-radius: 999px; }
+
+.brand { display: flex; align-items: center; gap: var(--s3); }
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  background: var(--ink);
+  color: var(--sand);
+  clip-path: polygon(var(--chamfer) 0, 100% 0, 100% 100%, 0 100%, 0 var(--chamfer));
+  border-radius: 3px;
+}
+.brand-mark.big { width: 60px; height: 60px; --chamfer: 14px; }
+.brand-mark.big .icon { font-size: 30px; }
+.brand h1 {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+.brand small {
+  display: block;
+  margin-top: 1px;
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.nav-card {
+  display: grid;
+  gap: var(--s2);
+  padding: var(--s4);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+}
+.nav-card h2 {
+  margin-bottom: var(--s1);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+}
+.nav-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s2); }
+
+.route-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s3);
+  padding-top: var(--s1);
+  font-size: 11.5px;
+  color: var(--text-3);
+}
+.route-inline strong {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.quick-list { display: grid; gap: var(--s1); }
+.quick-list h3 {
+  margin-bottom: var(--s1);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.room-chip {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 18px;
+  gap: var(--s3);
+  align-items: center;
+  width: 100%;
+  padding: var(--s2);
+  border-radius: var(--r-sm);
+  text-align: left;
+  transition: background .14s var(--ease);
+}
+.room-chip:hover { background: var(--paper); }
+.room-chip > div strong { display: block; font-size: 13px; font-weight: 600; }
+.room-chip > div span { display: block; font-size: 11px; color: var(--text-3); }
+/* > .icon — только шеврон справа; иначе перекрашивалась иконка внутри таблички */
+.room-chip > .icon { color: var(--text-3); font-size: 18px; }
+
+.legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s1) var(--s2); }
+.legend div { display: flex; align-items: center; gap: var(--s2); font-size: 11px; color: var(--text-2); }
+.legend i { width: 12px; height: 12px; border-radius: 2px; flex: 0 0 auto; }
+
+/* ── Сцена и наложения ───────────────────────────────────── */
+.stage { position: relative; min-width: 0; overflow: hidden; background: var(--paper-2); }
+/* Растягиваем только обёртку canvas от R3F. Без :not(...) это правило
+   растягивало и наложения — карточку шага, кнопки, тост, а также
+   шторку снизу (.sheet), которой inset:0 подменял её собственный
+   bottom-якорь на top:0 — шторка вставала к верху карты вместо низа. */
+.stage > div:not(.overlay):not(.toast):not(.sheet) { position: absolute; inset: 0; }
+.stage canvas { display: block; width: 100% !important; height: 100% !important; cursor: grab; }
+.stage canvas:active { cursor: grabbing; }
+
+.overlay { position: absolute; z-index: 4; pointer-events: none; }
+.overlay > * { pointer-events: auto; }
+
+.glass {
+  background: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(20px) saturate(125%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(125%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 8px 32px rgba(11, 18, 32, 0.12) !important;
+}
+
+.topbar {
+  top: var(--s4);
+  right: var(--s4);
+  left: var(--s4);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+
+.floor-card {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s2) var(--s4) var(--s2) var(--s2);
+  border-radius: var(--r-md);
+  max-width: 44ch;
+}
+/* Только текстовый блок, иначе селектор перебивал стили .plate рядом */
+.floor-card > div strong { display: block; font-size: 12.5px; font-weight: 600; }
+.floor-card > div span {
+  display: block;
+  overflow: hidden;
+  font-size: 11px;
+  color: var(--text-3);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.view-modes {
+  display: inline-flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(15, 23, 42, 0.05) !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03) !important;
+}
+.view-modes button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  height: 34px;
+  padding: 0 var(--s3);
+  border-radius: 9px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-2);
+  white-space: nowrap;
+  transition: background .14s var(--ease), color .14s var(--ease);
+}
+.view-modes button .icon { font-size: 17px; }
+.view-modes button:hover { background: rgba(255, 255, 255, 0.4); }
+.view-modes button.active {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 10px rgba(14, 165, 233, 0.25) !important;
+}
+
+/* top совпадает с верхней кромкой .map-search-row — кнопки зума и
+   строка поиска стоят на одной высоте, как в 2ГИС */
+.controls { top: var(--s4); right: var(--s4); display: grid; gap: 5px; }
+.control-btn {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--r-sm);
+  color: var(--text-2);
+  transition: color .14s var(--ease);
+}
+.control-btn:hover { color: var(--signal); }
+.control-btn.on { color: var(--sand-deep); }
+
+/* Карточка шага маршрута — слева снизу, кнопки управления ушли вверх,
+   поэтому они больше не перекрываются */
+.step-card {
+  right: var(--s4);
+  bottom: var(--s4);
+  left: var(--s4);
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  max-width: 470px;
+  padding: var(--s3);
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  background: var(--signal);
+  color: #fff;
+  border-radius: var(--r-sm);
+}
+.step-card .arrow .icon { font-size: 24px; }
+.step-card .info { flex: 1; min-width: 0; }
+.step-card .info strong { display: block; font-size: 13.5px; font-weight: 600; }
+.step-card .info span { display: block; font-family: var(--font-mono); font-size: 11px; color: var(--text-3); }
+.step-card .nav-step { display: inline-flex; gap: 3px; }
+.step-mini-btn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  color: var(--text-2);
+  transition: background .14s var(--ease), color .14s var(--ease);
+}
+.step-mini-btn:hover { background: var(--paper); color: var(--signal); }
+
+.room-card {
+  right: var(--s4);
+  bottom: var(--s4);
+  left: var(--s4);
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) auto auto auto;
+  gap: var(--s3);
+  align-items: center;
+  max-width: 560px;
+  padding: var(--s3);
+  border-radius: var(--r-lg);
+}
+.room-card-body strong { display: block; font-size: 14px; font-weight: 600; }
+.room-card-body span { display: block; font-size: 11.5px; color: var(--text-3); }
+
+.toast {
+  position: absolute;
+  top: 92px;   /* ниже верхней панели, чтобы не наезжать на переключатель вида */
+  left: 50%;
+  z-index: 10;
+  padding: var(--s2) var(--s4);
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--on-dark);
+  font-size: 12.5px;
+  font-weight: 550;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -10px);
+  pointer-events: none;
+  transition: opacity .22s var(--ease), transform .22s var(--ease);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ── Карта на узком экране ───────────────────────────────── */
+@media (max-width: 900px) {
+  /* Высоты нижней стопки (шторка → поиск → док) держим в переменных:
+     раньше 64/56 были вписаны числами в четырёх местах, и любое
+     изменение высоты строки поиска разъезжалось со шторкой. */
+  :root {
+    --dock-h: 64px;
+    --search-row-h: 64px;
+    --stack-bottom: calc(var(--dock-h) + env(safe-area-inset-bottom));
+  }
+
+  /* iOS сам наезжает зумом на любое поле мельче 16px и оставляет экран
+     съехавшим — поэтому на телефоне поля ровно 16px. Визуально это тот
+     же размер: поле выросло до 48px и текст в нём не жмётся. */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+  .app {
+    position: relative;
+    height: 100%;
+    display: block;
+  }
+  .stage {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    height: 100% !important;
+  }
+  .topbar { flex-direction: column; align-items: stretch; }
+  .floor-card { max-width: none; }
+  .view-modes { overflow-x: auto; }
+
+  /* ── Сплошной Док навигации на самом дне (в стиле 2ГИС) ── */
+  .rail {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(20px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
+    border: 0 !important;
+    /* Без своей обводки/тени сверху — рельса встык под строкой поиска,
+       и внутренний шов должен быть невидимым, единая панель, а не
+       стопка карточек со швами. Внешняя тень на верхнем крае всего
+       блока — уже на .sheet/.map-search-row. */
+    height: 64px !important;
+    padding: 0 !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+    z-index: 100 !important;
+    flex-direction: row !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    box-sizing: content-box !important;
+  }
+  /* Подписи в доке крупнее: 9.5px с рельсы-сайдбара на телефоне
+     читались только вплотную. */
+  .rail-link em, .rail-live em { font-size: 11px !important; }
+  .rail-link .icon, .rail-live .icon { font-size: 22px; }
+  /* Синяя черта под активным пунктом — второй, более спокойный
+     индикатор рядом с подсветкой иконки. */
+  /* bottom отмеряем внутрь пункта: ячейка занимает всю высоту дока,
+     и отрицательный отступ выносил черту за нижний край экрана. */
+  .rail-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    width: 28px;
+    height: 3px;
+    border-radius: 999px 999px 0 0;
+    background: var(--signal);
+    transform: translateX(-50%);
+  }
+
+  /* ── Стыкуемая Шторка снизу (без зазоров по краям) ──
+     fixed, а не absolute: док внизу тоже fixed, и пока эти двое мерили
+     низ от разных оснований (вьюпорт против .stage), на телефоне с
+     безопасной зоной между ними вылезала полоса карты. */
+  .sheet {
+    position: fixed !important;
+    bottom: var(--stack-bottom) !important; /* Встык над меню */
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-height: 70vh;
+    border-radius: 24px 24px 0 0 !important;
+    box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.06) !important;
+    z-index: 90 !important;
+    transition: height 0.3s cubic-bezier(0.2, 0.8, 0.25, 1);
+    border: 0 !important;
+    border-top: 1px solid rgba(15, 23, 42, 0.08) !important;
+    /* Боковые отступы живут на .sheet-body — дублировать их здесь
+       значило отодвинуть карточки от края на 32px вместо 16px. */
+    padding: 0 0 var(--s2) !important;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+  /* Пока строка поиска видна (idle и открытый поиск) — шторка стоит над
+     ней, а не поверх: иначе развёрнутая шторка накрывала поле, и то, что
+     набираешь, оказывалось под ней. */
+  .sheet.sheet-idle,
+  .sheet.sheet-search {
+    bottom: calc(var(--stack-bottom) + var(--search-row-h)) !important;
+    max-height: calc(100% - var(--stack-bottom) - var(--search-row-h) - 12px) !important;
+  }
+  /* В peek-состоянии высота подогнана под целые карточки, но на всякий
+     случай режем всё, что вылезло, и снимаем большой нижний отступ
+     списка — он бы оставлял пустую полосу под последней карточкой. */
+  .sheet.peek {
+    overflow: hidden !important;
+  }
+  .sheet.peek .sheet-body {
+    overflow: hidden !important;
+    padding-bottom: 0 !important;
+  }
+  .sheet.half, .sheet.full {
+    overflow-y: auto !important;
+  }
+  
+  .sheet-handle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 24px;
+    width: 100%;
+    cursor: pointer;
+    flex: 0 0 auto;
+  }
+  .sheet-handle-bar {
+    width: 44px;
+    height: 5px;
+    border-radius: 3px;
+    background: rgba(15, 23, 42, 0.15) !important;
+  }
+
+  /* ── Позиционирование поиска прямо над нижним меню ── */
+  .map-search-row {
+    position: fixed !important;
+    bottom: var(--stack-bottom) !important; /* Встык над меню */
+    top: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    padding: 8px 12px !important;
+    height: var(--search-row-h) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(20px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
+    border: 0 !important;
+    /* Верхний край стопки на телефоне — всегда шторка: в idle она стоит
+       прямо над строкой поиска, а в остальных состояниях строку прячут
+       и шторка опускается на её место. Собственное скругление строки
+       поэтому только резало карту двумя уголками поперёк белой панели —
+       снимаем, чтобы шторка → поиск → док читались одним блоком. */
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    z-index: 80 !important;
+    display: flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+  }
+  /* Поле ровно по внутренней высоте строки (64 − 8 − 8): при 54px оно
+     вылезало за панель и упиралось в шторку сверху и в док снизу. */
+  .map-search {
+    height: 48px !important;
+    padding: 0 14px !important;
+  }
+  .floor-pill {
+    position: static !important;
+    z-index: auto !important;
+    flex-direction: row-reverse !important;
+    padding: 2px !important;
+    height: 40px !important;
+    border-radius: 12px !important;
+    background: rgba(15, 23, 42, 0.05) !important;
+    border: 0 !important;
+    gap: 2px !important;
+  }
+  .floor-pill button {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 13px !important;
+  }
+
+  /* ── Режимы отображения и оверлеи — вверху экрана ── */
+  .map-modes {
+    position: absolute !important;
+    top: max(12px, env(safe-area-inset-top)) !important;
+    bottom: auto !important;
+    left: 12px !important;
+    max-width: calc(100vw - 72px) !important; /* Оставляем место справа под круглые кнопки */
+    z-index: 80 !important;
+  }
+  .stage-2gis .controls {
+    position: absolute !important;
+    top: max(12px, env(safe-area-inset-top)) !important;
+    bottom: auto !important;
+    right: 12px !important;
+    left: auto !important;
+    grid-auto-flow: row !important; /* Столбиком справа */
+    z-index: 80 !important;
+  }
+
+  /* Скрываем строку поиска на телефонах, если открыта шторка или маршрут */
+  .stage-2gis.has-selected .map-search-row,
+  .stage-2gis.has-route .map-search-row {
+    display: none !important;
+  }
+
+  /* Карточки шага навигации и кабинета — снизу, встык над меню */
+  .step-card, .room-card {
+    position: fixed !important;
+    right: 0 !important;
+    bottom: var(--stack-bottom) !important;
+    left: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    border-radius: 24px 24px 0 0 !important;
+    border: 0 !important;
+    border-top: 1px solid rgba(15, 23, 42, 0.08) !important;
+    box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.06) !important;
+    z-index: 90 !important;
+  }
+
+  /* Отступы для контента на мобильных из-за плавающего бара */
+  .screen-body, .chat-log, .lessons {
+    padding-bottom: 96px !important;
+  }
+}
+
+/* ── Стыли переключателя этажей ── */
+.floor-selector {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding: var(--s2);
+  border-radius: var(--r-md);
+  z-index: 4;
+}
+.floor-btn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-sm);
+  background: var(--card);
+  color: var(--text-2);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  box-shadow: var(--lift-1);
+  transition: color .16s, background .16s;
+  border: 0;
+  cursor: pointer;
+}
+.floor-btn:hover { color: var(--signal); }
+.floor-btn.active {
+  background: var(--signal);
+  color: #fff;
+  box-shadow: var(--lift-2);
+}
+
+.field-mic {
+  position: absolute;
+  right: 7px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-sm);
+  color: var(--text-3);
+  transition: right .2s var(--ease), color .16s, background-color .16s;
+  z-index: 2;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.field-mic:hover { background: var(--paper); color: var(--text); }
+.field-mic.shifted { right: 39px; }
+.field-mic.listening {
+  color: var(--alarm);
+  animation: mic-pulse 1.2s infinite ease-in-out;
+}
+@keyframes mic-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* ── Интерактивные кнопки в баблах чата ── */
+.bubble-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s2);
+}
+.bubble-action {
+  cursor: pointer;
+  border: 0;
+}
+.bubble-action.primary {
+  background: var(--signal) !important;
+  color: #fff !important;
+  transition: background .16s var(--ease);
+}
+.bubble-action.primary:hover {
+  background: var(--signal-deep) !important;
+}
+
+/* ── Эстетические улучшения дизайна (Премиум-полировка) ── */
+
+/* Глобальный светлый фон и градиенты экранов */
+body {
+  background-color: #f0f4f8 !important;
+  color: #0f172a !important;
+}
+.screen {
+  background: linear-gradient(145deg, #f0f4f8 0%, #e2e8f0 100%) !important;
+}
+.screen-head {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06) !important;
+}
+
+/* Градиентные современные заголовки в глубоких синих цветах */
+.screen-head h1, .brand h1, .nav-hero h1, .onboard-body h1 {
+  background: linear-gradient(135deg, #002244 0%, #1e3a8a 50%, #0284c7 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  font-family: var(--font-display) !important;
+}
+
+/* Плавающие карточки навигационного меню в виде светлого матового стекла */
+.panel {
+  background: rgba(255, 255, 255, 0.78) !important;
+  backdrop-filter: blur(24px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(140%) !important;
+  border-right: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 4px 0 24px rgba(15, 23, 42, 0.05) !important;
+}
+
+.lesson, .notice, .room-chip, .suggest, .nav-card, .bubble-body, .onboard-body, .floor-card, .step-card, .room-card {
+  background: rgba(255, 255, 255, 0.74) !important;
+  backdrop-filter: blur(20px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.04) !important;
+  color: #0f172a !important;
+}
+
+
+
+/* Активный пункт: подложка живёт под самой иконкой, а не под всей
+   ячейкой вместе с подписью. Заливка на всю ячейку делала активный
+   пункт заметно «тяжелее» соседних и ломала ритм ряда — подсветка
+   иконки читается как индикатор, а не как выделенная кнопка. */
+.rail-link, .rail-live { position: relative; }
+.rail-link .icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 32px;
+  border-radius: 12px;
+  transition: background .18s var(--ease), color .18s var(--ease);
+}
+.rail-link.active {
+  background: none !important;
+  color: var(--signal) !important;
+}
+.rail-link.active .icon { background: rgba(14, 165, 233, 0.12); }
+.rail-link.active em { font-weight: 700; }
+.rail-link {
+  color: #64748b !important;
+}
+
+/* Делаем поиск с матовым стеклом */
+.field input {
+  background: rgba(255, 255, 255, 0.5) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  color: #0f172a !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.field input:focus {
+  background: #ffffff !important;
+  border-color: var(--signal) !important;
+  box-shadow: 0 0 16px rgba(14, 165, 233, 0.18) !important;
+}
+
+/* Современные футуристические кнопки */
+.btn-primary {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.btn-primary:hover {
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.38) !important;
+}
+.btn-primary:active {
+  transform: translateY(0.5px) !important;
+}
+
+.btn-soft {
+  background: rgba(14, 165, 233, 0.08) !important;
+  border: 1px solid rgba(14, 165, 233, 0.05) !important;
+  color: #0284c7 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.btn-soft:hover {
+  background: rgba(14, 165, 233, 0.16) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Современные чипсы категорий */
+.chip {
+  background: rgba(255, 255, 255, 0.6) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  color: #475569 !important;
+  transition: all 0.2s !important;
+}
+.chip.on {
+  background: var(--signal) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.chip:hover {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #0f172a !important;
+}
+
+/* Золотая градиентная иконка бренда */
+.brand-mark {
+  background: linear-gradient(135deg, #ffcf00 0%, #e6a100 100%) !important;
+  color: #002244 !important;
+  box-shadow: 0 2px 10px rgba(255, 183, 0, 0.25) !important;
+}
+
+/* Мягкие скроллбары */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.08);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.18);
+}
+
+/* Ховер эффекты карт */
+.lesson:hover, .notice:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+.room-chip:hover {
+  transform: translateY(-1px) translateX(2px) !important;
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.06) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Кнопки управления */
+.control-btn, .floor-btn {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
+  color: #334155 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.control-btn:hover {
+  transform: scale(1.06) !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15) !important;
+}
+.floor-btn:hover {
+  transform: translateY(-2px) !important;
+  color: #0f172a !important;
+}
+.floor-btn.active {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25) !important;
+  color: #ffffff !important;
+}
+
+.panel-handle {
+  transition: background 0.2s;
+}
+.panel-handle:hover .handle-bar {
+  background: rgba(15, 23, 42, 0.3);
+}
+
+/* ── Фирменный Поворотный Компас ── */
+.compass-btn {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+.compass-rose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--text-3);
+  border-radius: 50%;
+  position: relative;
+  transition: none !important; /* Мгновенное вращение без задержек */
+}
+.compass-rose::before {
+  content: '';
+  position: absolute;
+  top: 1px;
+  width: 0;
+  height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-bottom: 6px solid var(--alarm); /* Красная стрелка на Север */
+}
+.compass-pointer {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 900;
+  color: var(--text);
+  margin-top: 1px;
+}
+
+/* ── Анимированная Волна Голосового Поиска ── */
+.mic-soundwave {
+  display: inline-flex;
+  align-items: center;
+  gap: 2.5px;
+  height: 16px;
+  padding: 0 4px;
+}
+.mic-bar {
+  width: 2px;
+  height: 100%;
+  background: var(--alarm);
+  border-radius: 99px;
+  animation: mic-bounce 0.8s infinite ease-in-out alternate;
+  transform-origin: center;
+}
+.mic-bar:nth-child(1) { animation-delay: 0.1s; height: 40%; }
+.mic-bar:nth-child(2) { animation-delay: 0.3s; height: 90%; }
+.mic-bar:nth-child(3) { animation-delay: 0.2s; height: 60%; }
+.mic-bar:nth-child(4) { animation-delay: 0.45s; height: 100%; }
+
+@keyframes mic-bounce {
+  0% { transform: scaleY(0.25); }
+  100% { transform: scaleY(1); }
+}

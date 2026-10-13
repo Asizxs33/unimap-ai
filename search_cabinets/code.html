@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UniMap AI — Поиск аудиторий</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-container": "#1a56db",
+                    "secondary-container": "#dae4ee",
+                    "on-surface": "#191c1d",
+                    "tertiary-fixed": "#ffdbcf",
+                    "secondary-fixed": "#dae4ee",
+                    "on-tertiary-fixed-variant": "#802a00",
+                    "on-primary-fixed": "#00174d",
+                    "on-primary-fixed-variant": "#003dab",
+                    "surface-dim": "#d9dadb",
+                    "on-primary": "#ffffff",
+                    "surface-variant": "#e1e3e4",
+                    "on-secondary-container": "#5c666e",
+                    "surface-container-lowest": "#ffffff",
+                    "outline-variant": "#c3c5d7",
+                    "on-tertiary": "#ffffff",
+                    "primary": "#003fb1",
+                    "tertiary": "#852b00",
+                    "surface-container": "#edeeef",
+                    "error-container": "#ffdad6",
+                    "error": "#ba1a1a",
+                    "surface": "#f8f9fa",
+                    "outline": "#737686",
+                    "surface-container-highest": "#e1e3e4",
+                    "primary-fixed": "#dbe1ff",
+                    "secondary-fixed-dim": "#bec8d1",
+                    "on-secondary-fixed": "#131d24",
+                    "on-tertiary-fixed": "#380d00",
+                    "on-primary-container": "#d4dcff",
+                    "surface-container-high": "#e7e8e9",
+                    "surface-bright": "#f8f9fa",
+                    "on-error": "#ffffff",
+                    "inverse-on-surface": "#f0f1f2",
+                    "on-secondary-fixed-variant": "#3e4850",
+                    "primary-fixed-dim": "#b5c4ff",
+                    "on-error-container": "#93000a",
+                    "surface-container-low": "#f3f4f5",
+                    "tertiary-container": "#ad3b00",
+                    "surface-tint": "#1353d8",
+                    "on-secondary": "#ffffff",
+                    "background": "#f8f9fa",
+                    "on-surface-variant": "#434654",
+                    "tertiary-fixed-dim": "#ffb59a",
+                    "on-tertiary-container": "#ffd4c5",
+                    "inverse-surface": "#2e3132",
+                    "secondary": "#566068",
+                    "on-background": "#191c1d",
+                    "inverse-primary": "#b5c4ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "2xl": "1.5rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "display": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body antialiased min-h-screen pb-24 md:pb-0 pt-20">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-[0_12px_32px_rgba(25,28,29,0.04)] bg-slate-50/50 dark:bg-slate-900/50 transition-all duration-300 ease-in-out">
+<div class="flex justify-between items-center px-6 h-16 w-full">
+<button class="text-slate-500 dark:text-slate-400 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_balance</span>
+</button>
+<div class="text-lg font-bold text-blue-900 dark:text-blue-50 tracking-[-0.02em] font-['Inter'] font-semibold tracking-tight">
+                UniMap AI
+            </div>
+<button class="text-blue-700 dark:text-blue-400 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">search</span>
+</button>
+</div>
+</header>
+<main class="max-w-4xl mx-auto px-6 space-y-12">
+<!-- ????? Input -->
+<section class="pt-6">
+<div class="relative bg-surface-container-highest rounded-2xl overflow-hidden focus-within:ring-2 focus-within:ring-primary transition-shadow">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-primary">search</span>
+</div>
+<input class="w-full bg-transparent border-none py-4 pl-12 pr-4 text-on-surface placeholder:text-on-surface-variant focus:ring-0 font-body text-base outline-none" placeholder="Найти аудитории, сотрудников, кабинеты..." type="text"/>
+</div>
+<!-- Quick Filters -->
+<div class="flex gap-3 mt-4 overflow-x-auto pb-2 scrollbar-hide">
+<button class="whitespace-nowrap px-4 py-2 bg-surface-container-low text-on-surface rounded-full text-sm font-medium hover:bg-surface-variant transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">domain</span> Офисы
+                </button>
+<button class="whitespace-nowrap px-4 py-2 bg-surface-container-low text-on-surface rounded-full text-sm font-medium hover:bg-surface-variant transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">school</span> Аудитории
+                </button>
+<button class="whitespace-nowrap px-4 py-2 bg-surface-container-low text-on-surface rounded-full text-sm font-medium hover:bg-surface-variant transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">restaurant</span> Сервисы
+                </button>
+</div>
+</section>
+<!-- ???????? ?????es Bento Grid -->
+<section>
+<h2 class="font-headline text-2xl font-semibold tracking-tight text-on-surface mb-6">Недавнее</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 relative overflow-hidden group cursor-pointer border border-outline-variant/15 hover:shadow-[0_12px_32px_rgba(25,28,29,0.06)] transition-all duration-300">
+<div class="absolute top-4 right-4 w-10 h-10 bg-secondary-container rounded-full flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined">meeting_room</span>
+</div>
+<div class="mt-8">
+<h3 class="font-display text-xl font-medium text-on-surface">Аудитория 305</h3>
+<p class="text-on-surface-variant text-sm mt-1">Корпус Б · научный блок</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 relative overflow-hidden group cursor-pointer border border-outline-variant/15 hover:shadow-[0_12px_32px_rgba(25,28,29,0.06)] transition-all duration-300 md:col-span-2">
+<div class="absolute top-4 right-4 w-10 h-10 bg-secondary-container rounded-full flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined">local_library</span>
+</div>
+<div class="mt-8">
+<h3 class="font-display text-xl font-medium text-on-surface">Главная библиотека</h3>
+<p class="text-on-surface-variant text-sm mt-1">Центральный кампус · 2 этаж</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 relative overflow-hidden group cursor-pointer border border-outline-variant/15 hover:shadow-[0_12px_32px_rgba(25,28,29,0.06)] transition-all duration-300 md:col-span-3">
+<div class="absolute top-4 right-4 w-10 h-10 bg-secondary-container rounded-full flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined">restaurant_menu</span>
+</div>
+<div class="mt-8">
+<h3 class="font-display text-xl font-medium text-on-surface">Столовая</h3>
+<p class="text-on-surface-variant text-sm mt-1">Студсовет · 1 этаж</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-safe bg-white/85 dark:bg-slate-900/85 backdrop-blur-2xl z-50 rounded-t-[2rem] border-t border-white/10 dark:border-slate-800/20 shadow-[0_-8px_32px_rgba(0,0,0,0.06)] transition-transform duration-300 cubic-bezier(0.34,1.56,0.64,1) active:scale-90">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">map</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Карта</span>
+</a>
+<a class="flex flex-col items-center justify-center text-blue-700 dark:text-blue-300 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-blue-700 after:rounded-full hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">search</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter text-blue-700 dark:text-blue-400">Поиск</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">smart_toy</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">ИИ-чат</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">calendar_today</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Расписание</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Профиль</span>
+</a>
+</nav>
+</body></html>

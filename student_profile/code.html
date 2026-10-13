@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+
+<html lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UniMap AI - Профиль</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#1a56db",
+                        "secondary-container": "#dae4ee",
+                        "on-surface": "#191c1d",
+                        "tertiary-fixed": "#ffdbcf",
+                        "secondary-fixed": "#dae4ee",
+                        "on-tertiary-fixed-variant": "#802a00",
+                        "on-primary-fixed": "#00174d",
+                        "on-primary-fixed-variant": "#003dab",
+                        "surface-dim": "#d9dadb",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e1e3e4",
+                        "on-secondary-container": "#5c666e",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#c3c5d7",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#003fb1",
+                        "tertiary": "#852b00",
+                        "surface-container": "#edeeef",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "surface": "#f8f9fa",
+                        "outline": "#737686",
+                        "surface-container-highest": "#e1e3e4",
+                        "primary-fixed": "#dbe1ff",
+                        "secondary-fixed-dim": "#bec8d1",
+                        "on-secondary-fixed": "#131d24",
+                        "on-tertiary-fixed": "#380d00",
+                        "on-primary-container": "#d4dcff",
+                        "surface-container-high": "#e7e8e9",
+                        "surface-bright": "#f8f9fa",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-secondary-fixed-variant": "#3e4850",
+                        "primary-fixed-dim": "#b5c4ff",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f3f4f5",
+                        "tertiary-container": "#ad3b00",
+                        "surface-tint": "#1353d8",
+                        "on-secondary": "#ffffff",
+                        "background": "#f8f9fa",
+                        "on-surface-variant": "#434654",
+                        "tertiary-fixed-dim": "#ffb59a",
+                        "on-tertiary-container": "#ffd4c5",
+                        "inverse-surface": "#2e3132",
+                        "secondary": "#566068",
+                        "on-background": "#191c1d",
+                        "inverse-primary": "#b5c4ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "display": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: theme('colors.surface');
+            color: theme('colors.on-surface');
+        }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased pb-[100px] md:pb-0 pt-16">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-[0_12px_32px_rgba(25,28,29,0.04)] bg-slate-50/50 dark:bg-slate-900/50 transition-all duration-300 ease-in-out hidden md:flex">
+<div class="flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-blue-700 dark:text-blue-400 hover:opacity-80 transition-opacity cursor-pointer">account_balance</span>
+<span class="font-['Inter'] font-semibold tracking-tight text-lg font-bold text-blue-900 dark:text-blue-50 tracking-[-0.02em]">UniMap AI</span>
+</div>
+<nav class="flex items-center gap-6">
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Карта</a>
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Поиск</a>
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">ИИ-чат</a>
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Расписание</a>
+<a class="text-blue-700 dark:text-blue-400 font-medium flex flex-col items-center relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-blue-700 after:rounded-full hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Профиль</a>
+</nav>
+<button class="material-symbols-outlined text-blue-700 dark:text-blue-400 hover:opacity-80 transition-opacity cursor-pointer">search</button>
+</div>
+</header>
+<main class="max-w-4xl mx-auto px-4 md:px-8 py-8 md:py-12 mt-4 md:mt-0">
+<!-- ??????? Header -->
+<section class="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12 bg-surface-container-low p-8 rounded-[2rem]">
+<div class="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-surface-container-lowest shadow-[0_12px_32px_rgba(25,28,29,0.06)] shrink-0">
+<img alt="Аватар студента" class="w-full h-full object-cover" data-alt="Портрет студента крупным планом с нейтральным выражением лица, мягким естественным освещением и размытым фоном." src="https://lh3.googleusercontent.com/aida-public/AB6AXuChzxLxqdztK9XXN7lB-527GFotX-vPbZsQWxdEn-uyJHT7i5VTKd8Vc7Y2KS79HCWmW8SJlFPxCI7TfKdNwnohlZLJoEuGWXuzPeq46tRZNeOoWypMw5jYjz3Txfu15q5-jYt_WvbtWMds1enaEsCJ0CB2IFtbaFiQ_dyjLqccsuFZ0pA2trRAeOguWOQQpTumuficN-_ETRAPejcG3AMEHwbKDqI2m1E_8vGbe7fg9VHojch0p7o5Gw9KGi6BkoBCoopiB00b71k"/>
+</div>
+<div class="flex-1 text-center md:text-left space-y-3 pt-2">
+<h1 class="text-4xl md:text-5xl font-bold font-display text-on-surface tracking-[-0.02em]">Алекс Джонсон</h1>
+<p class="text-xl md:text-2xl font-medium text-primary tracking-[-0.01em]">Архитектура и градостроительство</p>
+<div class="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-6">
+<div class="flex items-center gap-2 bg-surface-container-lowest px-4 py-2 rounded-xl text-on-surface-variant text-sm font-medium shadow-[0_4px_16px_rgba(25,28,29,0.02)]">
+<span class="material-symbols-outlined text-[20px]">badge</span>
+                        ID: 9482751
+                    </div>
+<div class="flex items-center gap-2 bg-surface-container-lowest px-4 py-2 rounded-xl text-on-surface-variant text-sm font-medium shadow-[0_4px_16px_rgba(25,28,29,0.02)]">
+<span class="material-symbols-outlined text-[20px]">school</span>
+                        3 курс
+                    </div>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<!-- Left Column: ????????? -->
+<div class="md:col-span-7 space-y-8">
+<!-- Preferences -->
+<section class="bg-surface-container-lowest rounded-[1.5rem] p-6 shadow-[0_8px_24px_rgba(25,28,29,0.03)]">
+<h2 class="text-2xl font-semibold font-headline mb-6 text-on-surface">Предпочтения маршрута</h2>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-4 bg-surface rounded-xl">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined">accessible</span>
+</div>
+<div>
+<h3 class="font-medium text-base text-on-surface">Только доступные маршруты</h3>
+<p class="text-sm text-on-surface-variant mt-0.5">Предпочитать лифты и пандусы вместо лестниц</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface rounded-xl">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined">directions_walk</span>
+</div>
+<div>
+<h3 class="font-medium text-base text-on-surface">Избегать лестниц</h3>
+<p class="text-sm text-on-surface-variant mt-0.5">Показывать маршруты с минимальным перепадом высоты</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</section>
+<!-- ??????????? -->
+<section class="bg-surface-container-lowest rounded-[1.5rem] p-6 shadow-[0_8px_24px_rgba(25,28,29,0.03)]">
+<h2 class="text-2xl font-semibold font-headline mb-6 text-on-surface">Уведомления</h2>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-4 bg-surface rounded-xl">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined">schedule</span>
+</div>
+<div>
+<h3 class="font-medium text-base text-on-surface">Напоминания о парах</h3>
+<p class="text-sm text-on-surface-variant mt-0.5">Уведомлять за 15 минут до занятия и предлагать маршрут</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: ??????????? ????? -->
+<div class="md:col-span-5 space-y-8">
+<section class="bg-surface-container-low rounded-[1.5rem] p-6">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-xl font-semibold font-headline text-on-surface">Сохранённые места</h2>
+<button class="text-primary hover:text-primary-container transition-colors text-sm font-medium">Показать все</button>
+</div>
+<div class="space-y-3">
+<div class="group bg-surface-container-lowest p-4 rounded-xl flex items-start gap-4 hover:shadow-[0_8px_24px_rgba(25,28,29,0.06)] transition-all cursor-pointer">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed shrink-0">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<div class="flex-1">
+<h3 class="font-medium text-base text-on-surface group-hover:text-primary transition-colors">Дизайн-студия 4A</h3>
+<p class="text-sm text-on-surface-variant mt-0.5">Архитектурный корпус, 4 этаж</p>
+</div>
+<button class="text-on-surface-variant hover:text-error transition-colors mt-1">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<div class="group bg-surface-container-lowest p-4 rounded-xl flex items-start gap-4 hover:shadow-[0_8px_24px_rgba(25,28,29,0.06)] transition-all cursor-pointer">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed shrink-0">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">home</span>
+</div>
+<div class="flex-1">
+<h3 class="font-medium text-base text-on-surface group-hover:text-primary transition-colors">Северное общежитие</h3>
+<p class="text-sm text-on-surface-variant mt-0.5">Комната 302, корпус C</p>
+</div>
+<button class="text-on-surface-variant hover:text-error transition-colors mt-1">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Logout -->
+<button class="w-full py-4 rounded-xl bg-surface-container-lowest text-error font-medium hover:bg-error-container transition-colors flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(25,28,29,0.02)] border border-outline-variant/15">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+                    Выйти
+                </button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-[2rem] bg-white/85 dark:bg-slate-900/85 backdrop-blur-2xl border-t border-white/10 dark:border-slate-800/20 shadow-[0_-8px_32px_rgba(0,0,0,0.06)] transition-transform duration-300 cubic-bezier(0.34,1.56,0.64,1) active:scale-90 fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-safe md:hidden">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors w-16" href="#">
+<span class="material-symbols-outlined mb-1">map</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Карта</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors w-16" href="#">
+<span class="material-symbols-outlined mb-1">search</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Поиск</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors w-16" href="#">
+<span class="material-symbols-outlined mb-1">smart_toy</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">ИИ-чат</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors w-16" href="#">
+<span class="material-symbols-outlined mb-1">calendar_today</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Расписание</span>
+</a>
+<a class="flex flex-col items-center justify-center text-blue-700 dark:text-blue-300 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-blue-700 after:rounded-full hover:text-blue-600 dark:hover:text-blue-300 transition-colors w-16" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Профиль</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UniMap AI — ИИ-ассистент</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#1a56db",
+                        "secondary-container": "#dae4ee",
+                        "on-surface": "#191c1d",
+                        "tertiary-fixed": "#ffdbcf",
+                        "secondary-fixed": "#dae4ee",
+                        "on-tertiary-fixed-variant": "#802a00",
+                        "on-primary-fixed": "#00174d",
+                        "on-primary-fixed-variant": "#003dab",
+                        "surface-dim": "#d9dadb",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e1e3e4",
+                        "on-secondary-container": "#5c666e",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#c3c5d7",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#003fb1",
+                        "tertiary": "#852b00",
+                        "surface-container": "#edeeef",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "surface": "#f8f9fa",
+                        "outline": "#737686",
+                        "surface-container-highest": "#e1e3e4",
+                        "primary-fixed": "#dbe1ff",
+                        "secondary-fixed-dim": "#bec8d1",
+                        "on-secondary-fixed": "#131d24",
+                        "on-tertiary-fixed": "#380d00",
+                        "on-primary-container": "#d4dcff",
+                        "surface-container-high": "#e7e8e9",
+                        "surface-bright": "#f8f9fa",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-secondary-fixed-variant": "#3e4850",
+                        "primary-fixed-dim": "#b5c4ff",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f3f4f5",
+                        "tertiary-container": "#ad3b00",
+                        "surface-tint": "#1353d8",
+                        "on-secondary": "#ffffff",
+                        "background": "#f8f9fa",
+                        "on-surface-variant": "#434654",
+                        "tertiary-fixed-dim": "#ffb59a",
+                        "on-tertiary-container": "#ffd4c5",
+                        "inverse-surface": "#2e3132",
+                        "secondary": "#566068",
+                        "on-background": "#191c1d",
+                        "inverse-primary": "#b5c4ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "display": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col relative overflow-hidden">
+<!-- TopAppBar (Shared JSON) -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-[0_12px_32px_rgba(25,28,29,0.04)] transition-all duration-300 ease-in-out">
+<div class="flex justify-between items-center px-6 h-16 w-full bg-slate-50/50 dark:bg-slate-900/50">
+<button class="text-blue-700 dark:text-blue-400 hover:opacity-80 transition-opacity flex items-center justify-center p-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+</button>
+<h1 class="font-['Inter'] font-semibold tracking-tight text-lg font-bold text-blue-900 dark:text-blue-50 tracking-[-0.02em]">UniMap AI</h1>
+<button class="text-blue-700 dark:text-blue-400 hover:opacity-80 transition-opacity flex items-center justify-center p-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+</div>
+</header>
+<!-- Chat Canvas -->
+<main class="flex-1 overflow-y-auto pt-20 pb-40 px-4 md:px-8 flex flex-col gap-6 relative z-10">
+<!-- ????? ?????????? Message & Suggestions -->
+<div class="flex flex-col items-center mt-8 mb-4">
+<div class="w-16 h-16 bg-gradient-to-br from-primary to-primary-container rounded-full flex items-center justify-center mb-4 shadow-[0_12px_32px_rgba(25,28,29,0.08)]">
+<span class="material-symbols-outlined text-white text-3xl" data-icon="smart_toy">smart_toy</span>
+</div>
+<h2 class="text-headline font-semibold text-xl text-on-surface mb-2 tracking-tight">Чем помочь с навигацией?</h2>
+<div class="flex flex-wrap justify-center gap-3 mt-6 max-w-lg">
+<button class="bg-surface-container-lowest text-primary text-sm font-medium px-4 py-2 rounded-full border border-outline-variant/15 hover:bg-surface-container-low transition-colors shadow-sm">
+                    Где аудитория 305?
+                </button>
+<button class="bg-surface-container-lowest text-primary text-sm font-medium px-4 py-2 rounded-full border border-outline-variant/15 hover:bg-surface-container-low transition-colors shadow-sm">
+                    Как пройти к выходу?
+                </button>
+<button class="bg-surface-container-lowest text-primary text-sm font-medium px-4 py-2 rounded-full border border-outline-variant/15 hover:bg-surface-container-low transition-colors shadow-sm">
+                    Ближайший туалет
+                </button>
+</div>
+</div>
+<!-- Chat History -->
+<div class="flex flex-col gap-6 w-full max-w-2xl mx-auto mt-4">
+<!-- User Message -->
+<div class="flex justify-end">
+<div class="bg-primary text-on-primary rounded-2xl rounded-tr-sm px-5 py-3 max-w-[85%] shadow-sm">
+<p class="text-body font-normal">Где аудитория 305?</p>
+</div>
+</div>
+<!-- Bot Message -->
+<div class="flex justify-start">
+<div class="bg-surface-container-lowest text-on-surface rounded-2xl rounded-tl-sm p-4 max-w-[90%] md:max-w-[80%] shadow-[0_4px_16px_rgba(25,28,29,0.04)] border border-outline-variant/15 flex flex-col gap-3">
+<p class="text-body font-normal text-on-surface-variant">
+                        Аудитория 305 на 3 этаже инженерного корпуса. Поднимитесь на северном лифте на 3 этаж и поверните налево — это вторая дверь справа.
+                    </p>
+<!-- ????? ??mbnail Container (Surface Low nesting) -->
+<div class="bg-surface-container-low rounded-xl p-2 mt-2 relative overflow-hidden group">
+<img alt="Миниатюра маршрута на карте" class="w-full h-32 object-cover rounded-lg" data-alt="Карта этажа в стиле архитектурного чертежа с подсвеченным маршрутом до аудитории 305." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxfw5FUXGSdxRN2rkkiLO94YsDNMUFV08Zu_f9rOnTt_wTQ4nHHlw7iHmZ90oQAkTgr14nDBrjQ0PE-7u_yFVIlGiAGiWjJotSZHLCmlLkkxYXpcO-bS6GrXK8GoR8R1VJZrQzkqz_-oEk5vD-VRECw6ave7FaRmR-W8MhjytxbERglBVk-kKRsB-EoFDv7WOTz2ng0vFcOJPYABtI00QoMSLR9b-teavYesnJtNhTJiO8URvmEkWHgug6TUXb_ZJttKVrVeKQH-o"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/80 to-transparent flex items-end p-3 rounded-lg pointer-events-none">
+<button class="pointer-events-auto bg-primary text-white text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1 shadow-md hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[16px]" data-icon="map">map</span>
+                                 Открыть на карте
+                             </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Spacer for input bar -->
+<div class="h-24"></div>
+</main>
+<!-- Glassmorphism Input Bar (Fixed Bottom above Nav) -->
+<div class="fixed bottom-[80px] w-full z-40 px-4 md:px-8 pb-4 flex justify-center pointer-events-none">
+<div class="w-full max-w-2xl bg-surface-container-lowest/80 backdrop-blur-xl rounded-full p-2 shadow-[0_12px_32px_rgba(25,28,29,0.08)] border border-white/40 flex items-center gap-2 pointer-events-auto">
+<button class="p-2 text-primary hover:bg-primary-container/10 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="mic">mic</span>
+</button>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-body text-on-surface placeholder-outline px-2" placeholder="Спросите UniMap AI..." type="text"/>
+<button class="w-10 h-10 bg-gradient-to-br from-primary to-primary-container text-white rounded-full flex items-center justify-center hover:opacity-90 transition-opacity shadow-md">
+<span class="material-symbols-outlined text-lg" data-icon="send">send</span>
+</button>
+</div>
+</div>
+<!-- BottomNavBar (Shared JSON - Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-[2rem] bg-white/85 dark:bg-slate-900/85 backdrop-blur-2xl border-t border-white/10 dark:border-slate-800/20 shadow-[0_-8px_32px_rgba(0,0,0,0.06)]">
+<div class="fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-safe transition-transform duration-300 cubic-bezier(0.34,1.56,0.64,1) active:scale-90">
+<!-- ????? -->
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors w-16 h-full">
+<span class="material-symbols-outlined mb-1" data-icon="map">map</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Карта</span>
+</button>
+<!-- ????? -->
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors w-16 h-full">
+<span class="material-symbols-outlined mb-1" data-icon="search">search</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Поиск</span>
+</button>
+<!-- ??-??? (Active) -->
+<button class="flex flex-col items-center justify-center text-blue-700 dark:text-blue-300 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-blue-700 after:rounded-full w-16 h-full">
+<span class="material-symbols-outlined mb-1" data-icon="smart_toy" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">ИИ-чат</span>
+</button>
+<!-- ?????????? -->
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors w-16 h-full">
+<span class="material-symbols-outlined mb-1" data-icon="calendar_today">calendar_today</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Расписание</span>
+</button>
+<!-- ??????? -->
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-colors w-16 h-full">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="text-[11px] font-bold tracking-widest uppercase Inter">Профиль</span>
+</button>
+</div>
+</nav>
+</body></html>
