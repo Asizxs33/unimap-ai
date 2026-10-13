@@ -18,7 +18,7 @@ function answer(question) {
     };
   }
   return {
-    text: 'Не нашёл такого места на первом этаже. Попробуйте номер кабинета — например «105» — или напишите, что вам нужно: столовая, туалет, библиотека, деканат.',
+    text: 'Не нашёл такого места в корпусе. Попробуйте номер кабинета — например «105» или «305» — или напишите, что вам нужно: столовая, туалет, библиотека, деканат.',
     room: null,
   };
 }
@@ -42,7 +42,7 @@ export default function AiChat() {
     setText('');
   };
 
-  const openOnMap = (id) => { navigateTo(id); nav('/map'); };
+  const openOnMap = (to, from) => { navigateTo(to, from); nav('/map'); };
 
   return (
     <div className="screen chat-screen">
@@ -61,10 +61,10 @@ export default function AiChat() {
               <p>{m.text}</p>
               {m.room && PLACE_BY_ID[m.room] && (
                 <div className="bubble-actions">
-                  <button className="bubble-action" onClick={() => { navigateTo(m.room, m.room); nav('/map'); }}>
+                  <button className="bubble-action" onClick={() => openOnMap(m.room, m.room)}>
                     <span className="icon">visibility</span> Показать кабинет
                   </button>
-                  <button className="bubble-action primary" onClick={() => { navigateTo(m.room, 'entrance'); nav('/map'); }}>
+                  <button className="bubble-action primary" onClick={() => openOnMap(m.room, 'entrance')}>
                     <span className="icon">fork_right</span> Маршрут от входа
                   </button>
                 </div>
@@ -85,7 +85,7 @@ export default function AiChat() {
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && send()}
+          onKeyDown={(e) => e.key === 'Enter' && !e.nativeEvent.isComposing && send()}
           placeholder="Например: где столовая?"
         />
         <button className="icon-btn primary" onClick={() => send()} title="Отправить">

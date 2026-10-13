@@ -1,16 +1,40 @@
-# React + Vite
+# UniMap AI — исходники
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+3D-навигатор по корпусу ОҚМПУ им. Ө. Жәнібекова: карта четырёх этажей,
+поиск кабинетов, маршруты по коридорам и лестницам, расписание и чат-помощник.
+Работает как PWA — ставится на телефон и открывается без интернета.
 
-Currently, two official plugins are available:
+Стек: React 19, React Router 7, three.js + @react-three/fiber/drei,
+postprocessing, Vite 8, vite-plugin-pwa.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Команды
 
-## React Compiler
+Все команды выполняются из папки `app/` (нужен Node.js 20.19+).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Команда          | Что делает                                                     |
+| ---------------- | -------------------------------------------------------------- |
+| `npm install`    | Установить зависимости                                         |
+| `npm run dev`    | Dev-сервер на http://localhost:5173                            |
+| `npm run lint`   | Проверка кода (oxlint)                                         |
+| `npm test`       | Тесты графа маршрутов и справочника (`node:test`)              |
+| `npm run build`  | Сборка в `app/dist/`                                           |
+| `npm run deploy` | Сборка и копирование в корень репозитория (его и раздаёт хостинг); устаревшие бандлы из корневой `assets/` удаляются |
 
-## Expanding the Oxlint configuration
+## Структура
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```
+src/
+  data/       граф кампуса (campus.js), справочник мест (catalog.js),
+              планировка (buildingLayout.js), расписание и ответы чата
+  lib/        поиск пути (Дейкстра), физика и автопрогулка, качество графики
+  scene/      3D-сцена: здание, план этажа, мебель, маршрут, режим прогулки
+  screens/    экраны приложения (карта, поиск, маршрут, чат, профиль…)
+  components/ общие компоненты интерфейса
+  state/      глобальное состояние (AppState.jsx)
+tests/        тесты на node:test
+```
+
+Граф описан для первого этажа в `src/data/campus.js` и программно
+размножается на этажи 2–4; лестницы связывают этажи через промежуточные
+узлы пролётов. При изменении графа запустите `npm test` — тесты проверяют,
+что каждое место из справочника достижимо от главного входа.

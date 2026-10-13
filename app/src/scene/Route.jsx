@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useLayoutEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import { INT } from './palette.js';
@@ -38,7 +38,7 @@ export function RouteLine({ curve, visible = true, animate = true }) {
     g.setDrawRange(0, Math.max(6, Math.floor(total * eased)));
   });
 
-  useMemo(() => { grown.current = 0; }, [curve]);
+  useLayoutEffect(() => { grown.current = 0; }, [curve]);
 
   if (!curve || !geometry) return null;
   const start = curve.points[0];

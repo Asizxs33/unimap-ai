@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { PROFILE } from '../data/schedule.js';
-import { PLACE_BY_ID, CATEGORIES } from '../data/catalog.js';
+import { PLACE_BY_ID } from '../data/catalog.js';
 import { useApp } from '../state/AppState.jsx';
 
 export default function Profile() {

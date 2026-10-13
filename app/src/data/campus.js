@@ -192,10 +192,10 @@ for (let f = 1; f <= 4; f++) {
   }
 }
 
-// Алиасы для лестниц 1-го этажа, чтобы не ломать старый код
-NODES['stairsL'] = NODES['stairsL_1'];
-NODES['stairsR'] = NODES['stairsR_1'];
-NODES['stairsE'] = NODES['stairsE_1'];
+// Алиасы для лестниц 1-го этажа, чтобы не ломать старый код.
+// Рёбра есть только у stairsX_1 — короткое имя приводим к нему в поиске пути.
+export const NODE_ALIASES = { stairsL: 'stairsL_1', stairsR: 'stairsR_1', stairsE: 'stairsE_1' };
+for (const [alias, id] of Object.entries(NODE_ALIASES)) NODES[alias] = NODES[id];
 
 // Заполняем рёбра по этажам
 for (let f = 1; f <= 4; f++) {

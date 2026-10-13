@@ -38,7 +38,7 @@ export default function Furniture({ rooms, yOffset = 0, opacity = 1, isTranspare
       const made = classroomDesks(room, FLOOR_Y);
       d.push(...made.desks);
       c.push(...made.chairs);
-      for (const [x, y, z] of made.desks) {
+      for (const [x, , z] of made.desks) {
         l.push([x - DESK.w / 2 + 0.15, FLOOR_Y + 0.36, z]);
         l.push([x + DESK.w / 2 - 0.15, FLOOR_Y + 0.36, z]);
       }

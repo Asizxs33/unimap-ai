@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { CATEGORIES, searchPlaces, PLACE_BY_ID } from '../data/catalog.js';
+import { searchPlaces } from '../data/catalog.js';
 
 /**
  * Поле поиска помещения с живыми подсказками.
@@ -205,12 +205,3 @@ export default function PlaceSearch({
     </div>
   );
 }
-
-/** Подпись выбранного места для внешних экранов */
-export function labelOf(id) {
-  const p = PLACE_BY_ID[id];
-  if (!p) return '';
-  return p.number ? `${p.number} · ${p.name}` : p.name;
-}
-
-export { CATEGORIES };

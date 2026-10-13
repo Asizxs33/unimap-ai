@@ -1,4 +1,4 @@
-import { NODES, EDGES, ALIASES } from '../data/campus.js';
+import { NODES, EDGES, ALIASES, NODE_ALIASES } from '../data/campus.js';
 
 /* Список смежности строим один раз при загрузке модуля */
 const adj = {};
@@ -19,8 +19,10 @@ const STAIR_PENALTY = 400;   // метров штрафа: обход наход
  * существует, маршрут пойдёт по нему, если нет — путь всё равно построится.
  */
 export function findPath(start, goal, { avoidStairs = false } = {}) {
+  start = NODE_ALIASES[start] ?? start;
+  goal = NODE_ALIASES[goal] ?? goal;
   if (!NODES[start] || !NODES[goal]) return null;
-  const dist = {}, prev = {}, queue = new Set(Object.keys(NODES));
+  const dist = {}, prev = {}, queue = new Set(Object.keys(NODES).filter((k) => !NODE_ALIASES[k]));
   for (const k of queue) dist[k] = Infinity;
   dist[start] = 0;
 
